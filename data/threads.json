@@ -1,0 +1,62 @@
+[
+  {
+    "id": "t1",
+    "title": "Show off your dev setup 2026",
+    "category": "General",
+    "author": "setup_addict",
+    "createdAt": "2026-06-28T08:00:00Z",
+    "views": 1204,
+    "posts": [
+      {
+        "id": "p1",
+        "body": "M4 MacBook + dual 4K monitors + split keyboard. AMA.",
+        "author": "setup_addict",
+        "createdAt": "2026-06-28T08:00:00Z"
+      },
+      {
+        "id": "p2",
+        "body": "Linux + tiling WM gang, still undefeated for productivity.",
+        "author": "arch_btw",
+        "createdAt": "2026-06-28T09:30:00Z"
+      }
+    ]
+  },
+  {
+    "id": "t2",
+    "title": "Is AI pair programming making juniors weaker?",
+    "category": "Career",
+    "author": "senior_sam",
+    "createdAt": "2026-07-03T12:00:00Z",
+    "views": 3567,
+    "posts": [
+      {
+        "id": "p3",
+        "body": "Hot take: juniors who lean on AI never learn to debug. Discuss.",
+        "author": "senior_sam",
+        "createdAt": "2026-07-03T12:00:00Z"
+      },
+      {
+        "id": "p4",
+        "body": "Counter-take: calculators didn't kill math. Tools shift what \"fundamentals\" means.",
+        "author": "optimist_omar",
+        "createdAt": "2026-07-03T13:15:00Z"
+      }
+    ]
+  },
+  {
+    "id": "t3",
+    "title": "Best resources to learn Go in 2026?",
+    "category": "Learning",
+    "author": "gopher_wannabe",
+    "createdAt": "2026-07-06T10:00:00Z",
+    "views": 842,
+    "posts": [
+      {
+        "id": "p5",
+        "body": "Go by Example + the official tour, then build a CLI tool. Worked for me.",
+        "author": "gopher_wannabe",
+        "createdAt": "2026-07-06T10:00:00Z"
+      }
+    ]
+  }
+]

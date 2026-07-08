@@ -1,0 +1,64 @@
+[
+  {
+    "id": "q1",
+    "title": "How do I reverse a string in Python?",
+    "body": "Looking for the most Pythonic way.",
+    "tags": [
+      "python"
+    ],
+    "author": "devina",
+    "votes": 42,
+    "createdAt": "2026-07-01T10:00:00Z",
+    "answers": [
+      {
+        "id": "a1",
+        "body": "Use slicing: `s[::-1]` — fastest and most idiomatic.",
+        "author": "pyguru",
+        "votes": 58,
+        "accepted": true,
+        "createdAt": "2026-07-01T10:05:00Z"
+      },
+      {
+        "id": "a2",
+        "body": "`\"\".join(reversed(s))` also works and reads clearly.",
+        "author": "lambda_larry",
+        "votes": 12,
+        "accepted": false,
+        "createdAt": "2026-07-01T11:00:00Z"
+      }
+    ]
+  },
+  {
+    "id": "q2",
+    "title": "What is the difference between == and === in JavaScript?",
+    "body": "When should I use each?",
+    "tags": [
+      "javascript"
+    ],
+    "author": "jsnewbie",
+    "votes": 35,
+    "createdAt": "2026-07-02T09:00:00Z",
+    "answers": [
+      {
+        "id": "a3",
+        "body": "`===` compares value AND type (strict). `==` coerces types first. Always prefer `===`.",
+        "author": "es_ninja",
+        "votes": 44,
+        "accepted": true,
+        "createdAt": "2026-07-02T09:10:00Z"
+      }
+    ]
+  },
+  {
+    "id": "q3",
+    "title": "Rust borrow checker: cannot borrow as mutable more than once",
+    "body": "Getting E0499. How do I restructure my code?",
+    "tags": [
+      "rust"
+    ],
+    "author": "crab_fan",
+    "votes": 18,
+    "createdAt": "2026-07-05T14:00:00Z",
+    "answers": []
+  }
+]

@@ -1,0 +1,199 @@
+[
+  {
+    "name": "Python",
+    "icon": "🐍",
+    "tagline": "Readable, versatile, batteries included.",
+    "usedFor": ["AI/ML", "Data science", "Web (Django/FastAPI)", "Scripting & automation"],
+    "tips": [
+      "Use list comprehensions instead of loops: `[x*2 for x in nums if x > 0]`.",
+      "Swap variables without a temp: `a, b = b, a`.",
+      "Use `enumerate()` instead of manual counters in loops.",
+      "f-strings support debugging: `print(f'{value=}')` prints name and value.",
+      "Use `collections.Counter` for instant frequency counts.",
+      "Prefer `pathlib.Path` over `os.path` for file operations.",
+      "Virtual environments always: `python -m venv .venv`."
+    ],
+    "snippet": "from collections import Counter\nwords = 'the quick the lazy the'.split()\nprint(Counter(words).most_common(1))  # [('the', 3)]"
+  },
+  {
+    "name": "JavaScript",
+    "icon": "⚡",
+    "tagline": "The language of the web — everywhere, always.",
+    "usedFor": ["Frontend (React/Vue)", "Backend (Node.js)", "Mobile (React Native)", "Desktop (Electron)"],
+    "tips": [
+      "Always use `===` over `==` to avoid type-coercion surprises.",
+      "Destructure objects for cleaner code: `const { name, age } = user;`.",
+      "Optional chaining prevents crashes: `user?.profile?.avatar`.",
+      "Nullish coalescing for defaults: `value ?? 'fallback'` (unlike `||`, keeps 0 and '').",
+      "Use `Promise.all()` to run async operations in parallel.",
+      "`structuredClone(obj)` deep-copies without JSON hacks.",
+      "Debounce expensive event handlers (scroll, resize, input)."
+    ],
+    "snippet": "const users = await Promise.all(\n  ids.map(id => fetch(`/api/users/${id}`).then(r => r.json()))\n);"
+  },
+  {
+    "name": "TypeScript",
+    "icon": "🔷",
+    "tagline": "JavaScript that scales — with types.",
+    "usedFor": ["Large web apps", "Enterprise codebases", "Node.js APIs", "Library authoring"],
+    "tips": [
+      "Enable `strict: true` in tsconfig — it catches whole bug classes.",
+      "Prefer `unknown` over `any`; it forces you to narrow types.",
+      "Use utility types: `Partial<T>`, `Pick<T, K>`, `Omit<T, K>`, `Record<K, V>`.",
+      "Discriminated unions make impossible states impossible.",
+      "`as const` freezes literals into precise types.",
+      "Let inference work — don't annotate what TS already knows."
+    ],
+    "snippet": "type Result<T> =\n  | { ok: true; data: T }\n  | { ok: false; error: string };\n// exhaustive handling enforced by the compiler"
+  },
+  {
+    "name": "Java",
+    "icon": "☕",
+    "tagline": "Write once, run anywhere. Enterprise workhorse.",
+    "usedFor": ["Enterprise backends (Spring)", "Android", "Big data (Hadoop/Kafka)", "Banking systems"],
+    "tips": [
+      "Use Streams for collection pipelines: `list.stream().filter(...).map(...).toList()`.",
+      "Prefer `Optional<T>` over returning null.",
+      "Records (Java 16+) kill boilerplate: `record Point(int x, int y) {}`.",
+      "Use `var` for obvious local types (Java 10+).",
+      "StringBuilder for loops that build strings.",
+      "Try-with-resources auto-closes files and connections."
+    ],
+    "snippet": "record User(String name, int age) {}\nvar adults = users.stream()\n    .filter(u -> u.age() >= 18)\n    .map(User::name)\n    .toList();"
+  },
+  {
+    "name": "C++",
+    "icon": "⚙️",
+    "tagline": "Maximum performance, maximum control.",
+    "usedFor": ["Game engines", "Trading systems", "Embedded", "Browsers & OS internals"],
+    "tips": [
+      "Use smart pointers (`unique_ptr`, `shared_ptr`) — avoid raw `new`/`delete`.",
+      "RAII everything: resources tied to object lifetime never leak.",
+      "Pass large objects by `const&`, return by value (move semantics handle it).",
+      "Prefer `std::vector` over raw arrays; `std::array` for fixed size.",
+      "Use `auto` for iterator types and lambdas.",
+      "Range-based for loops: `for (const auto& item : items)`."
+    ],
+    "snippet": "auto ptr = std::make_unique<Widget>();\nstd::ranges::sort(items, {}, &Item::price); // C++20 ranges"
+  },
+  {
+    "name": "Go",
+    "icon": "🐹",
+    "tagline": "Simple, fast, built for cloud concurrency.",
+    "usedFor": ["Cloud services", "CLI tools", "DevOps (Docker/K8s are Go)", "Microservices"],
+    "tips": [
+      "Goroutines are cheap — but always know how they exit.",
+      "Use channels to communicate; don't communicate by sharing memory.",
+      "`defer` cleanup right after acquiring a resource.",
+      "Handle every error explicitly — it's a feature, not noise.",
+      "Table-driven tests are idiomatic and scale beautifully.",
+      "`go fmt` and `go vet` before every commit."
+    ],
+    "snippet": "results := make(chan string)\nfor _, url := range urls {\n    go func(u string) { results <- fetch(u) }(url)\n}"
+  },
+  {
+    "name": "Rust",
+    "icon": "🦀",
+    "tagline": "Memory safety without garbage collection.",
+    "usedFor": ["Systems programming", "WebAssembly", "CLI tools", "Blockchain & embedded"],
+    "tips": [
+      "Fight the borrow checker less: clone early while learning, optimize later.",
+      "Use `match` exhaustively — the compiler ensures you handle every case.",
+      "`?` operator propagates errors cleanly: `let file = File::open(path)?;`.",
+      "Iterators are zero-cost: prefer `.iter().map().filter()` chains over loops.",
+      "`cargo clippy` teaches you idiomatic Rust as you code.",
+      "Use `Option`/`Result` — there is no null, and that's the point."
+    ],
+    "snippet": "let total: i32 = orders.iter()\n    .filter(|o| o.paid)\n    .map(|o| o.amount)\n    .sum();"
+  },
+  {
+    "name": "C#",
+    "icon": "🎯",
+    "tagline": "Modern, elegant, the heart of .NET.",
+    "usedFor": ["Web APIs (ASP.NET)", "Games (Unity)", "Windows apps", "Enterprise software"],
+    "tips": [
+      "LINQ makes collection queries readable: `people.Where(p => p.Age > 18).Select(p => p.Name)`.",
+      "Use `async`/`await` all the way down — never `.Result` or `.Wait()`.",
+      "Records for immutable data: `record Person(string Name, int Age);`.",
+      "Pattern matching is powerful: `if (obj is Person { Age: > 18 } p)`.",
+      "Null-conditional operators: `user?.Address?.City ?? \"Unknown\"`.",
+      "String interpolation: `$\"Hello {name}, you are {age}\"`."
+    ],
+    "snippet": "var topScores = players\n    .OrderByDescending(p => p.Score)\n    .Take(10)\n    .Select(p => $\"{p.Name}: {p.Score}\");"
+  },
+  {
+    "name": "PHP",
+    "icon": "🐘",
+    "tagline": "Powers 75% of the web — and modern PHP is good.",
+    "usedFor": ["WordPress", "Laravel apps", "E-commerce", "Server-side web"],
+    "tips": [
+      "Use Composer for everything — never copy-paste libraries.",
+      "Enable strict types: `declare(strict_types=1);` at the top of files.",
+      "Null coalescing: `$name = $_GET['name'] ?? 'guest';`.",
+      "Arrow functions (7.4+): `fn($x) => $x * 2`.",
+      "Match expressions (8.0+) beat switch: no fallthrough, returns values.",
+      "Always use prepared statements — never concatenate SQL."
+    ],
+    "snippet": "$status = match($code) {\n    200, 201 => 'success',\n    404 => 'not found',\n    default => 'error',\n};"
+  },
+  {
+    "name": "Swift",
+    "icon": "🍎",
+    "tagline": "Fast, safe, expressive — Apple's modern language.",
+    "usedFor": ["iOS/macOS apps", "watchOS/tvOS", "Server-side Swift", "SwiftUI interfaces"],
+    "tips": [
+      "Use `guard let` for early exits — keeps the happy path unindented.",
+      "Prefer `let` over `var`; immutability by default.",
+      "Optionals are your friend: `if let`, `??`, and optional chaining.",
+      "Value types (structs) by default; classes only when you need reference semantics.",
+      "`enum` with associated values models state elegantly.",
+      "Use trailing closure syntax for readability."
+    ],
+    "snippet": "guard let user = fetchUser(id) else { return }\nlet names = users.compactMap { $0.nickname }"
+  },
+  {
+    "name": "Kotlin",
+    "icon": "🤖",
+    "tagline": "Concise, safe, 100% Java interop — Android's darling.",
+    "usedFor": ["Android apps", "Backend (Ktor/Spring)", "Multiplatform mobile", "Gradle scripts"],
+    "tips": [
+      "Data classes give you equals/hashCode/toString for free.",
+      "Null safety built-in: `String?` vs `String`, use `?.` and `?:`.",
+      "Scope functions: `let`, `apply`, `also`, `run`, `with` — learn when each fits.",
+      "Extension functions add behavior without inheritance.",
+      "Coroutines make async code look synchronous.",
+      "`when` expressions are exhaustive and expressive."
+    ],
+    "snippet": "data class User(val name: String, val email: String?)\nval domain = user.email?.substringAfter(\"@\") ?: \"unknown\""
+  },
+  {
+    "name": "SQL",
+    "icon": "🗄️",
+    "tagline": "The language of data — 50 years strong.",
+    "usedFor": ["Databases (Postgres/MySQL)", "Analytics", "Data warehousing", "Reporting"],
+    "tips": [
+      "Index columns you filter and join on — but not everything.",
+      "`EXPLAIN ANALYZE` reveals why queries are slow.",
+      "Use CTEs (`WITH`) to make complex queries readable.",
+      "Window functions beat self-joins: `ROW_NUMBER() OVER (PARTITION BY ...)`.",
+      "`COALESCE()` handles nulls in results gracefully.",
+      "Never `SELECT *` in production code."
+    ],
+    "snippet": "WITH ranked AS (\n  SELECT name, salary,\n    RANK() OVER (PARTITION BY dept ORDER BY salary DESC) r\n  FROM employees\n)\nSELECT * FROM ranked WHERE r <= 3;"
+  },
+  {
+    "name": "Ruby",
+    "icon": "💎",
+    "tagline": "Optimized for developer happiness.",
+    "usedFor": ["Web apps (Rails)", "Prototyping", "DevOps scripting", "Static sites (Jekyll)"],
+    "tips": [
+      "Everything is an object — even integers have methods: `5.times { }`.",
+      "Use symbols (`:name`) for identifiers, strings for data.",
+      "Safe navigation: `user&.profile&.avatar`.",
+      "Blocks, procs, and lambdas are Ruby's superpower — master them.",
+      "`Enumerable` methods (`map`, `select`, `reduce`, `each_slice`) replace most loops.",
+      "String interpolation over concatenation: `\"Hello #{name}\"`."
+    ],
+    "snippet": "top = orders.select(&:paid)\n            .group_by(&:customer)\n            .transform_values { |o| o.sum(&:total) }"
+  }
+]
