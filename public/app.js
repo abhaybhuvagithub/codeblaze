@@ -226,9 +226,10 @@ async function loadNews() {
 }
 function renderHomeNews(items) {
   if (!items.length) return;
-  // Ticker: top 3 headlines
-  $('#ticker').innerHTML = items.slice(0, 3)
-    .map(i => `<span>■ ${esc(i.title)}</span>`).join(' ');
+  // Ticker: top headlines, duplicated for a seamless infinite scroll
+  const tickerItems = items.slice(0, 8)
+    .map(i => `<span>■ ${esc(i.title)}</span>`).join('');
+  $('#ticker').innerHTML = tickerItems + tickerItems;
   // Featured pair under the hero
   $('#home-featured').innerHTML = items.slice(0, 2).map(i => `
     <a href="${esc(i.link)}" target="_blank" rel="noopener" style="color:inherit">
