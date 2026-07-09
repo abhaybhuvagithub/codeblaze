@@ -98,7 +98,9 @@ const FEEDS = [
   { name: 'The Verge', url: 'https://www.theverge.com/rss/index.xml' },
   { name: 'Ars Technica', url: 'https://feeds.arstechnica.com/arstechnica/index' },
   { name: 'Wired', url: 'https://www.wired.com/feed/rss' },
-  { name: 'freeCodeCamp', url: 'https://www.freecodecamp.org/news/rss/' }
+  { name: 'freeCodeCamp', url: 'https://www.freecodecamp.org/news/rss/' },
+  { name: 'GeeksforGeeks', url: 'https://www.geeksforgeeks.org/feed/' },
+  { name: 'TechGig', url: 'https://content.techgig.com/rssfeedstopstories.cms' }
 ];
 
 let newsCache = { items: [], fetchedAt: 0 };
