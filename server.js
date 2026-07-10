@@ -572,6 +572,19 @@ app.get('/api/languages', (req, res) => {
   res.json(load('languages', []));
 });
 
+// ---------- Total visitors ----------
+// Simple persisted counter. GET reads the total; POST increments it (the
+// frontend counts each browser once via a localStorage flag).
+// Note: on hosts with an ephemeral filesystem (e.g. Render free tier) this
+// resets on redeploy — swap in a database for a durable count.
+let visits = load('visits', { count: 0 });
+app.get('/api/visits', (req, res) => res.json({ count: visits.count }));
+app.post('/api/visits', (req, res) => {
+  visits.count += 1;
+  save('visits', visits);
+  res.json({ count: visits.count });
+});
+
 // SPA fallback
 app.get('*', (req, res) => res.sendFile(path.join(__dirname, 'public', 'index.html')));
 

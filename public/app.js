@@ -51,8 +51,29 @@ function nav(view) {
 }
 document.addEventListener('click', e => {
   const t = e.target.closest('[data-nav]');
-  if (t) { e.preventDefault(); nav(t.dataset.nav); }
+  if (t) { e.preventDefault(); nav(t.dataset.nav); closeMobileNav(); }
 });
+
+// ---------- Mobile nav (hamburger) ----------
+function closeMobileNav() {
+  const nv = document.getElementById('site-nav');
+  const tg = document.getElementById('nav-toggle');
+  if (nv) nv.classList.remove('open');
+  if (tg) tg.setAttribute('aria-expanded', 'false');
+}
+(function initMobileNav() {
+  const tg = document.getElementById('nav-toggle');
+  const nv = document.getElementById('site-nav');
+  if (!tg || !nv) return;
+  tg.addEventListener('click', () => {
+    const open = nv.classList.toggle('open');
+    tg.setAttribute('aria-expanded', String(open));
+  });
+  // Close when tapping outside the header.
+  document.addEventListener('click', e => {
+    if (nv.classList.contains('open') && !e.target.closest('.topbar')) closeMobileNav();
+  });
+})();
 
 const state = { languages: [], questions: [], news: [], newsLoaded: false, newsFilter: '', newsCategory: '', adPkg: null };
 
@@ -686,8 +707,25 @@ async function loadTrending() {
 }
 window.nav_qa = () => nav('qa');
 
+// ---------- Total visitors ----------
+async function loadVisits() {
+  const el = document.getElementById('visit-count');
+  if (!el) return;
+  try {
+    let counted = false;
+    try { counted = !!localStorage.getItem('cbf-counted'); } catch (e) {}
+    // Count this browser once; otherwise just read the running total.
+    const data = counted
+      ? await api('/api/visits')
+      : await api('/api/visits', { method: 'POST', body: '{}' });
+    if (!counted) { try { localStorage.setItem('cbf-counted', '1'); } catch (e) {} }
+    el.textContent = Number(data.count || 0).toLocaleString();
+  } catch (e) { el.textContent = '—'; }
+}
+
 // ---------- Init ----------
 (async function init() {
+  loadVisits();
   await Promise.all([loadLanguages(), loadQuestions(), loadForums(), loadAds()]);
   loadTrending();
   loadNews(); // background, also fills home preview
