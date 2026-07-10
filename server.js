@@ -148,8 +148,9 @@ let threads = load('threads', [
 
 let adInquiries = load('ad_inquiries', []);
 
-// ---------- Advertise packages ($100–$999, category-wise) ----------
+// ---------- Advertise packages ($49–$999, category-wise) ----------
 const AD_PACKAGES = [
+  { id: 'text-link', category: 'Starter', name: 'Text Link Ad', price: 49, period: '/month', desc: 'A single sponsored text link in our sidebar link unit — the cheapest way to test us.', perks: ['Text only, one link', 'Sitewide sidebar', 'Great for a trial run'] },
   { id: 'sidebar', category: 'Display', name: 'Sidebar Banner', price: 100, period: '/month', desc: '300×250 banner on all article and Q&A pages.', perks: ['~500K impressions/mo', 'Link + image', 'Basic analytics'] },
   { id: 'newsletter', category: 'Newsletter', name: 'Newsletter Mention', price: 199, period: '/issue', desc: 'A featured blurb in our weekly dev newsletter.', perks: ['120K subscribers', '40% open rate', 'One link + 50 words'] },
   { id: 'qa-sponsor', category: 'Q&A', name: 'Sponsored Q&A Tag', price: 299, period: '/month', desc: 'Your brand pinned on a language tag page (e.g., #python).', perks: ['Tag-page takeover', 'Logo + tagline', 'Click tracking'] },
@@ -174,6 +175,7 @@ const AD_PACKAGES = [
 //   requiresTag  true when a language/tag must be chosen (e.g. #python)
 //   labelled     placement is shown labelled as sponsored
 const AD_RULES = {
+  'text-link': { unit: 'month', monthlyEquiv: 49, goals: ['awareness', 'traffic', 'retargeting'],                  reach: 500000,  maxWords: 10,  maxLinks: 1, needs: ['short link text (≤10 words)', 'click-through link'], requiresTag: false, labelled: false },
   sidebar:    { unit: 'month', monthlyEquiv: 100,  goals: ['awareness', 'traffic', 'retargeting'],                 reach: 500000,  maxWords: 20,  maxLinks: 1, needs: ['300×250 image', 'click-through link'], requiresTag: false, labelled: false },
   newsletter: { unit: 'issue', monthlyEquiv: 796,  goals: ['email', 'awareness', 'launch'],                        reach: 48000,   maxWords: 50,  maxLinks: 1, needs: ['≤50-word blurb', 'one link'],           requiresTag: false, labelled: true  },
   'qa-sponsor':{ unit: 'month', monthlyEquiv: 299, goals: ['targeting', 'niche', 'awareness'],                     reach: 0,       maxWords: 12,  maxLinks: 1, needs: ['logo', 'tagline'],                     requiresTag: true,  labelled: true  },

@@ -437,7 +437,7 @@ const AA_BUDGETS = [
   { label: '$800+',      val: 1200 }
 ];
 const AA_TAGS = ['python','javascript','typescript','java','c++','go','rust','c#','php','swift','kotlin','sql','ruby'];
-const AA_TAG_RULE = { newsletter: 50, sidebar: 20, 'home-banner': 15, 'news-slot': 25, 'qa-sponsor': 12 };
+const AA_TAG_RULE = { 'text-link': 10, newsletter: 50, sidebar: 20, 'home-banner': 15, 'news-slot': 25, 'qa-sponsor': 12 };
 
 const aaLog = () => $('#assistant-log');
 function aaScroll() { const l = aaLog(); l.scrollTop = l.scrollHeight; }
