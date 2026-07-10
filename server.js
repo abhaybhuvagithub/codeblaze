@@ -6,6 +6,7 @@ const express = require('express');
 const fs = require('fs');
 const path = require('path');
 const Parser = require('rss-parser');
+const nodemailer = require('nodemailer');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -13,6 +14,76 @@ const DATA_DIR = path.join(__dirname, 'data');
 
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
+
+// ---------- Email (Gmail SMTP) ----------
+// Enabled only when GMAIL_USER + GMAIL_APP_PASSWORD are set (App Password, not
+// your normal Google password). If unset, bookings still work — emails are
+// simply skipped and a warning is logged. OWNER_EMAIL gets the booking alerts.
+const OWNER_EMAIL = process.env.OWNER_EMAIL || 'abhay.bhuva@gmail.com';
+const MAIL_USER = process.env.GMAIL_USER || '';
+let mailer = null;
+if (MAIL_USER && process.env.GMAIL_APP_PASSWORD) {
+  mailer = nodemailer.createTransport({
+    service: 'gmail',
+    auth: { user: MAIL_USER, pass: process.env.GMAIL_APP_PASSWORD }
+  });
+  mailer.verify()
+    .then(() => console.log(`✉️  Email ready — sending as ${MAIL_USER}, alerts to ${OWNER_EMAIL}`))
+    .catch(err => console.warn('✉️  Email config present but verify failed:', err.message));
+} else {
+  console.warn('✉️  Email disabled — set GMAIL_USER and GMAIL_APP_PASSWORD env vars to enable booking emails.');
+}
+
+// Send an owner alert + a customer confirmation for a booking. Never throws.
+async function sendBookingEmails(inquiry, pkg) {
+  if (!mailer) return { sent: false, reason: 'not configured' };
+  const money = `$${pkg.price}${pkg.period}`;
+  const detail = [
+    `Package: ${pkg.name} (${money})`,
+    `Company: ${inquiry.company}`,
+    `Contact: ${inquiry.email}`,
+    inquiry.goal ? `Goal: ${inquiry.goal}` : null,
+    inquiry.budget != null ? `Budget: $${inquiry.budget}` : null,
+    inquiry.tag ? `Target tag: #${inquiry.tag}` : null,
+    inquiry.copy ? `Ad copy: ${inquiry.copy}` : null
+  ].filter(Boolean).join('\n');
+  const warns = (inquiry.validation && inquiry.validation.warnings) || [];
+
+  try {
+    // 1) Owner alert
+    await mailer.sendMail({
+      from: `"CodeBlazeFeed Ads" <${MAIL_USER}>`,
+      to: OWNER_EMAIL,
+      replyTo: inquiry.email,
+      subject: `🔥 New ad booking: ${pkg.name} — ${inquiry.company}`,
+      text: `New advertising booking on CodeBlazeFeed:\n\n${detail}\n` +
+        (warns.length ? `\n⚠️ Rule flags:\n- ${warns.join('\n- ')}\n` : '') +
+        `\nInquiry ID: ${inquiry.id}\nReceived: ${inquiry.createdAt}`
+    });
+    // 2) Customer confirmation
+    await mailer.sendMail({
+      from: `"CodeBlazeFeed" <${MAIL_USER}>`,
+      to: inquiry.email,
+      replyTo: OWNER_EMAIL,
+      subject: `Your ${pkg.name} booking with CodeBlazeFeed`,
+      text: `Hi ${inquiry.company},\n\nThanks for booking the ${pkg.name} (${money}) on CodeBlazeFeed! ` +
+        `We've received your request and our team will reach out shortly to finalise creative and scheduling.\n\n` +
+        `Summary:\n${detail}\n` +
+        (warns.length ? `\nA couple of things to tidy up before we go live:\n- ${warns.join('\n- ')}\n` : '') +
+        `\nReply to this email if you have any questions.\n\n— The CodeBlazeFeed Team`,
+      html: `<p>Hi <strong>${inquiry.company}</strong>,</p>
+<p>Thanks for booking the <strong>${pkg.name}</strong> (${money}) on CodeBlazeFeed! We've received your request and our team will reach out shortly to finalise creative and scheduling.</p>
+<p><strong>Summary</strong><br>${detail.replace(/\n/g, '<br>')}</p>
+${warns.length ? `<p><strong>A couple of things to tidy up before we go live:</strong><br>- ${warns.join('<br>- ')}</p>` : ''}
+<p>Reply to this email if you have any questions.</p>
+<p>— The CodeBlazeFeed Team</p>`
+    });
+    return { sent: true };
+  } catch (e) {
+    console.error('✉️  Booking email failed:', e.message);
+    return { sent: false, reason: e.message };
+  }
+}
 
 // ---------- tiny JSON file store ----------
 function load(name, fallback) {
@@ -446,7 +517,7 @@ app.post('/api/ads/assistant/validate', (req, res) => {
   res.json({ package: pkg.name, ...validateBooking(pkg, { copy, tag }) });
 });
 
-app.post('/api/ads/inquiries', (req, res) => {
+app.post('/api/ads/inquiries', async (req, res) => {
   const { packageId, company, email, message, goal, budget, copy, tag, duration } = req.body || {};
   const pkg = AD_PACKAGES.find(p => p.id === packageId);
   if (!pkg) return res.status(400).json({ error: 'invalid packageId' });
@@ -470,13 +541,21 @@ app.post('/api/ads/inquiries', (req, res) => {
   };
   adInquiries.push(inquiry);
   save('ad_inquiries', adInquiries);
+
+  // Fire off owner alert + customer confirmation (never blocks the booking).
+  const emailResult = await sendBookingEmails(inquiry, pkg);
+
+  const emailLine = emailResult.sent
+    ? ` A confirmation has been emailed to ${inquiry.email}.`
+    : ' Our team will confirm by email.';
   res.status(201).json({
     ok: true,
     id: inquiry.id,
     booked: !validation.warnings.length,
     warnings: validation.warnings,
     notes: validation.notes,
-    note: `Thanks ${inquiry.company}! Your ${pkg.name} ($${pkg.price}${pkg.period}) request is in${validation.warnings.length ? ' — we flagged a couple of things below' : ''}. Our team will confirm by email.`
+    emailed: emailResult.sent,
+    note: `Thanks ${inquiry.company}! Your ${pkg.name} ($${pkg.price}${pkg.period}) request is in${validation.warnings.length ? ' — we flagged a couple of things below' : ''}.${emailLine}`
   });
 });
 

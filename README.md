@@ -43,8 +43,23 @@ Requires Node.js 18+.
 | POST | `/api/ads/inquiries` | Book a package (runs rule validation, returns warnings/notes) |
 | GET | `/api/languages` | Language knowledge |
 
+## Booking emails (Gmail SMTP)
+
+When a package is booked, the server emails the site owner an alert and the
+customer a confirmation. This is off until you set three env vars:
+
+| Env var | Value |
+|---|---|
+| `GMAIL_USER` | the Gmail address you send from (e.g. `abhay.bhuva@gmail.com`) |
+| `GMAIL_APP_PASSWORD` | a Google **App Password** (16 chars) — not your normal password |
+| `OWNER_EMAIL` | where booking alerts go (defaults to `abhay.bhuva@gmail.com`) |
+
+Create an App Password at https://myaccount.google.com/apppasswords (requires
+2-Step Verification enabled). If the vars are unset, bookings still work — email
+is simply skipped and a warning is logged.
+
 ## Notes
 
-- Data is stored as JSON files in `data/` — swap in a real DB (Postgres/Mongo) for production.
+- Data is stored as JSON files in `data/` — swap in a real DB (Postgres/Mongo) for production. On hosts with an ephemeral filesystem (e.g. Render free tier) `data/*.json` resets on redeploy; email + a real DB are the durable path for bookings.
 - No auth yet; add sessions/JWT before going live.
 - Deploy anywhere Node runs (Render, Railway, Fly.io, a VPS).
