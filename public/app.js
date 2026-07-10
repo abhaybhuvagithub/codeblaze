@@ -15,6 +15,31 @@ const api = async (url, opts) => {
   return r.json();
 };
 
+// ---------- Theme (dark / light) ----------
+(function initTheme() {
+  const root = document.documentElement;
+  const btn = document.getElementById('theme-toggle');
+  const apply = t => {
+    root.setAttribute('data-theme', t);
+    if (btn) btn.setAttribute('aria-pressed', String(t === 'light'));
+  };
+  // The inline <head> script already picked the initial theme; sync button state.
+  apply(root.getAttribute('data-theme') || 'dark');
+  if (btn) btn.addEventListener('click', () => {
+    const next = root.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+    apply(next);
+    try { localStorage.setItem('cbf-theme', next); } catch (e) {}
+  });
+  // Follow the OS theme only while the user hasn't chosen one explicitly.
+  if (window.matchMedia) {
+    window.matchMedia('(prefers-color-scheme: light)').addEventListener('change', e => {
+      let saved = null;
+      try { saved = localStorage.getItem('cbf-theme'); } catch (_) {}
+      if (!saved) apply(e.matches ? 'light' : 'dark');
+    });
+  }
+})();
+
 // ---------- Navigation ----------
 function nav(view) {
   $$('.view').forEach(v => v.classList.add('hidden'));
@@ -22,6 +47,7 @@ function nav(view) {
   $$('.nav a').forEach(a => a.classList.toggle('active', a.dataset.nav === view));
   window.scrollTo({ top: 0 });
   if (view === 'news' && !state.newsLoaded) loadNews();
+  if (view === 'advertise' && typeof aaStart === 'function' && !AA.started) aaStart();
 }
 document.addEventListener('click', e => {
   const t = e.target.closest('[data-nav]');
@@ -310,6 +336,292 @@ $('#ad-submit').onclick = async () => {
     ['#ad-company','#ad-email','#ad-message'].forEach(s => $(s).value = '');
   } catch (e) { $('#ad-result').textContent = '❌ ' + e.message; }
 };
+
+// ---------- Agentic Ad Assistant ("Blaze") ----------
+// A goal-driven booking agent: it collects a campaign brief, scores packages
+// server-side against each ad's rules, recommends the best fit, then books it
+// while enforcing placement rules (word/link limits, required tag, creative).
+const AA = {
+  started: false,
+  stage: 'idle',
+  brief: { goals: [], goalLabel: '', budget: null, tag: null, duration: null, text: '' },
+  pkg: null,
+  booking: { company: '', email: '', copy: '' }
+};
+
+const AA_GOALS = [
+  { keys: ['awareness'],                          label: 'Brand awareness' },
+  { keys: ['traffic'],                            label: 'Clicks & signups' },
+  { keys: ['email'],                              label: 'Reach dev inboxes' },
+  { keys: ['targeting', 'niche'],                 label: 'Target a language' },
+  { keys: ['community', 'engagement'],            label: 'Community engagement' },
+  { keys: ['content', 'seo', 'thought-leadership'], label: 'Content / authority' },
+  { keys: ['launch', 'maximum'],                  label: 'Big launch / max reach' }
+];
+const AA_BUDGETS = [
+  { label: 'Under $200', val: 150 },
+  { label: '$200–$500',  val: 450 },
+  { label: '$500–$800',  val: 750 },
+  { label: '$800+',      val: 1200 }
+];
+const AA_TAGS = ['python','javascript','typescript','java','c++','go','rust','c#','php','swift','kotlin','sql','ruby'];
+const AA_TAG_RULE = { newsletter: 50, sidebar: 20, 'home-banner': 15, 'news-slot': 25, 'qa-sponsor': 12 };
+
+const aaLog = () => $('#assistant-log');
+function aaScroll() { const l = aaLog(); l.scrollTop = l.scrollHeight; }
+function aaAdd(role, html) {
+  const div = document.createElement('div');
+  div.className = 'msg ' + role;
+  div.innerHTML = html;
+  aaLog().appendChild(div);
+  aaScroll();
+  return div;
+}
+function aaTyping() {
+  return aaAdd('bot', '<span class="typing"><span></span><span></span><span></span></span>');
+}
+async function aaBot(html, delay = 500) {
+  const t = aaTyping();
+  await new Promise(r => setTimeout(r, delay));
+  t.innerHTML = html;
+  aaScroll();
+  return t;
+}
+function aaQuick(items) {
+  const q = $('#assistant-quick');
+  q.innerHTML = '';
+  items.forEach(it => {
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'chip';
+    b.textContent = it.label;
+    b.onclick = () => { aaClearQuick(); it.onClick(); };
+    q.appendChild(b);
+  });
+}
+function aaClearQuick() { $('#assistant-quick').innerHTML = ''; }
+
+async function aaStart() {
+  if (AA.started) return;
+  AA.started = true;
+  aaLog().innerHTML = '';
+  aaClearQuick();
+  await aaBot("Hi, I'm <strong>Blaze</strong> ✦ your ad assistant. In a couple of questions I'll match you to the right package and get it booked. <strong>What's the main goal of your campaign?</strong>", 300);
+  aaAskGoal();
+}
+function aaAskGoal() {
+  AA.stage = 'goal';
+  aaQuick(AA_GOALS.map(g => ({ label: g.label, onClick: () => aaSetGoal(g) })));
+}
+async function aaSetGoal(g) {
+  AA.brief.goals = g.keys.slice();
+  AA.brief.goalLabel = g.label;
+  aaAdd('user', esc(g.label));
+  await aaAskBudget();
+}
+async function aaAskBudget() {
+  AA.stage = 'budget';
+  await aaBot("Great. <strong>What's your rough budget?</strong> (you can type a number too)", 450);
+  aaQuick(AA_BUDGETS.map(b => ({ label: b.label, onClick: () => aaSetBudget(b.val, b.label) })));
+}
+async function aaSetBudget(val, label) {
+  AA.brief.budget = val;
+  aaAdd('user', esc(label || ('$' + val)));
+  // Only ask for a tag when the goal is about targeting a specific language.
+  if (AA.brief.goals.some(k => k === 'targeting' || k === 'niche')) return aaAskTag();
+  await aaRecommend();
+}
+async function aaAskTag() {
+  AA.stage = 'tag';
+  await aaBot("Which language or tech should we target?", 400);
+  aaQuick(AA_TAGS.slice(0, 8).map(t => ({ label: '#' + t, onClick: () => aaSetTag(t) }))
+    .concat([{ label: 'No preference', onClick: () => aaSetTag(null) }]));
+}
+async function aaSetTag(t) {
+  AA.brief.tag = t;
+  aaAdd('user', t ? '#' + esc(t) : 'No preference');
+  await aaRecommend();
+}
+async function aaRecommend() {
+  AA.stage = 'recommend';
+  const t = aaTyping();
+  try {
+    const payload = {
+      goals: AA.brief.goals, budget: AA.brief.budget, tag: AA.brief.tag,
+      text: AA.brief.text || AA.brief.goalLabel
+    };
+    const data = await api('/api/ads/assistant/recommend', { method: 'POST', body: JSON.stringify(payload) });
+    const top = (data.top && data.top.length) ? data.top : data.all.slice(0, 3);
+    const intro = top.length
+      ? `Based on <strong>${esc(AA.brief.goalLabel || 'your goal')}</strong>${AA.brief.budget ? ` and a ~$${AA.brief.budget} budget` : ''}, here's what I'd recommend:`
+      : "I couldn't find a strong match — here are our closest options:";
+    t.innerHTML = intro + top.map((r, i) => aaRecCard(r, i === 0)).join('');
+    aaScroll();
+    AA.stage = 'picking';
+  } catch (e) {
+    t.innerHTML = "Sorry, I couldn't reach the recommendation service (" + esc(e.message) + "). You can browse the packages below instead.";
+  }
+}
+function aaRecCard(r, isTop) {
+  return `
+    <div class="rec ${isTop ? 'top' : ''}">
+      <div class="rec-head">
+        <b>${esc(r.name)}${isTop ? '<span class="rec-badge">Best fit</span>' : ''}</b>
+        <span class="rec-price">$${r.price}${esc(r.period)}</span>
+      </div>
+      <ul>${(r.reasons || []).map(x => `<li>${esc(x)}</li>`).join('')}</ul>
+      <button class="btn btn-primary btn-sm" onclick="aaPick('${r.id}','${esc(r.name)}',${r.price},'${esc(r.period)}')">Book ${esc(r.name)}</button>
+    </div>`;
+}
+window.aaPick = async (id, name, price, period) => {
+  AA.pkg = { id, name, price, period };
+  aaClearQuick();
+  aaAdd('user', 'Book ' + esc(name));
+  AA.stage = 'company';
+  await aaBot(`Excellent — <strong>${esc(name)}</strong> ($${price}${esc(period)}). Let's get the details. <strong>What's your company name?</strong>`, 450);
+};
+
+// Handle context-sensitive free-text input for the booking flow.
+async function aaHandleText(text) {
+  const val = text.trim();
+  if (!val) return;
+
+  switch (AA.stage) {
+    case 'goal': {
+      aaAdd('user', esc(val));
+      AA.brief.text = val; AA.brief.goalLabel = val; AA.brief.goals = [];
+      const b = /\$?\s*\d{2,6}|\bk\b/.test(val) ? null : null; // budget still asked next
+      await aaAskBudget();
+      break;
+    }
+    case 'budget': {
+      const n = aaParseBudget(val);
+      aaAdd('user', esc(val));
+      if (n == null) { await aaBot("I didn't catch a number — roughly how many dollars? e.g. 500", 300); return; }
+      await aaSetBudget(n, '$' + n);
+      break;
+    }
+    case 'tag': {
+      const found = AA_TAGS.find(t => val.toLowerCase().includes(t));
+      await aaSetTag(found || null);
+      break;
+    }
+    case 'company': {
+      AA.booking.company = val.slice(0, 100);
+      aaAdd('user', esc(val));
+      AA.stage = 'email';
+      await aaBot("Thanks. <strong>What's the best work email</strong> to send the confirmation to?", 350);
+      break;
+    }
+    case 'email': {
+      aaAdd('user', esc(val));
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val)) { await aaBot("That doesn't look like a valid email — mind trying again?", 300); return; }
+      AA.booking.email = val.slice(0, 100);
+      // Ask for the tag if this package requires one and we don't have it yet.
+      if (AA.pkg.id === 'qa-sponsor' && !AA.brief.tag) {
+        AA.stage = 'tag-book';
+        await aaBot("Which language tag should your brand run on? e.g. #python", 350);
+        return;
+      }
+      await aaAskCopy();
+      break;
+    }
+    case 'tag-book': {
+      const found = AA_TAGS.find(t => val.toLowerCase().includes(t));
+      AA.brief.tag = found || val.replace(/^#/, '').toLowerCase().slice(0, 40);
+      aaAdd('user', '#' + esc(AA.brief.tag));
+      await aaAskCopy();
+      break;
+    }
+    case 'copy':
+    case 'copy-fix': {
+      aaAdd('user', esc(val));
+      if (/^(book anyway|book it|go ahead|submit)$/i.test(val)) { await aaBook(AA.booking.copy); return; }
+      AA.booking.copy = val.slice(0, 2000);
+      await aaBook(val);
+      break;
+    }
+    case 'done': {
+      aaAdd('user', esc(val));
+      await aaBot("We're all set on that booking! Hit <strong>Restart</strong> above to plan another campaign.", 300);
+      break;
+    }
+    default:
+      aaAdd('user', esc(val));
+      await aaBot("Let me get you set up first — tell me your campaign goal.", 250);
+      aaAskGoal();
+  }
+}
+function aaParseBudget(s) {
+  const t = String(s).toLowerCase().replace(/,/g, '');
+  const k = t.match(/(\d+(?:\.\d+)?)\s*k\b/);
+  if (k) return Math.round(parseFloat(k[1]) * 1000);
+  const n = t.match(/\$?\s*(\d{2,6})/);
+  return n ? parseInt(n[1], 10) : null;
+}
+async function aaAskCopy() {
+  AA.stage = 'copy';
+  const limit = AA_TAG_RULE[AA.pkg.id];
+  const hint = limit
+    ? ` Heads up: ${AA.pkg.name} allows up to <strong>${limit} words</strong> and one link, so keep it tight.`
+    : '';
+  await aaBot(`Almost done. <strong>Paste your ad copy or a short creative note</strong> and I'll check it against the ${esc(AA.pkg.name)} rules.${hint}`, 400);
+}
+async function aaBook(copy) {
+  const t = aaTyping();
+  try {
+    const body = {
+      packageId: AA.pkg.id,
+      company: AA.booking.company,
+      email: AA.booking.email,
+      goal: AA.brief.goalLabel,
+      budget: AA.brief.budget,
+      tag: AA.brief.tag,
+      copy: copy || '',
+      message: copy || ''
+    };
+    const r = await api('/api/ads/inquiries', { method: 'POST', body: JSON.stringify(body) });
+    let html = '✅ ' + esc(r.note);
+    if (r.warnings && r.warnings.length) {
+      html += '<div style="margin-top:8px"><span class="assistant-warn">Please review:</span><ul>' +
+        r.warnings.map(w => `<li>${esc(w)}</li>`).join('') + '</ul></div>';
+    }
+    if (r.notes && r.notes.length) {
+      html += '<div style="margin-top:6px"><span class="assistant-ok">Good to know:</span><ul>' +
+        r.notes.map(n => `<li>${esc(n)}</li>`).join('') + '</ul></div>';
+    }
+    t.innerHTML = html;
+    aaScroll();
+    if (r.warnings && r.warnings.length) {
+      AA.stage = 'copy-fix';
+      await aaBot("Want to paste a revised version, or type <strong>book anyway</strong> to keep it as-is?", 300);
+    } else {
+      AA.stage = 'done';
+      aaQuick([{ label: 'Plan another campaign', onClick: () => { AA.started = false; AA.pkg = null; AA.brief = { goals: [], goalLabel: '', budget: null, tag: null, duration: null, text: '' }; AA.booking = { company: '', email: '', copy: '' }; aaStart(); } }]);
+    }
+  } catch (e) {
+    t.innerHTML = '❌ ' + esc(e.message);
+  }
+}
+
+// Wire the assistant form + restart button.
+(function aaWire() {
+  const form = $('#assistant-form');
+  if (!form) return;
+  form.addEventListener('submit', e => {
+    e.preventDefault();
+    const input = $('#assistant-text');
+    const v = input.value;
+    input.value = '';
+    aaHandleText(v);
+  });
+  $('#assistant-reset').addEventListener('click', () => {
+    AA.started = false; AA.pkg = null;
+    AA.brief = { goals: [], goalLabel: '', budget: null, tag: null, duration: null, text: '' };
+    AA.booking = { company: '', email: '', copy: '' };
+    aaStart();
+  });
+})();
 
 // ---------- Home trending ----------
 async function loadTrending() {

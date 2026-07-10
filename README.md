@@ -21,6 +21,8 @@ Requires Node.js 18+.
 - **Forums** — categories (General / Career / Learning), threads, replies, view counts. Persists to `data/threads.json`.
 - **Tech News** — live RSS from Hacker News, Dev.to, TechCrunch, The Verge, Ars Technica, Wired, freeCodeCamp. Cached 10 min. Edit `FEEDS` in `server.js` to add feeds.
 - **Advertise** — 8 packages from $100 to $999 across Display, Newsletter, Q&A, Forums, News, Content, and Premium categories. Inquiries persist to `data/ad_inquiries.json`.
+- **Blaze — Agentic AI ad assistant** — a chat agent on the Advertise page that takes a campaign brief (goal + budget + optional target tag), scores every package against its own rules, recommends the best fit, then books it while enforcing placement rules (copy word/link limits, required language tag, creative requirements). Rules live in `AD_RULES` in `server.js`.
+- **Dark / light theme** — toggle in the top bar (🌙 / ☀️). Remembers your choice in `localStorage` and defaults to your OS preference. Theme is applied before first paint (no flash).
 
 ## API
 
@@ -36,7 +38,9 @@ Requires Node.js 18+.
 | POST | `/api/forums` | New thread |
 | POST | `/api/forums/:id/posts` | Reply |
 | GET | `/api/ads/packages` | Ad packages |
-| POST | `/api/ads/inquiries` | Book a package |
+| POST | `/api/ads/assistant/recommend` | Rank packages for a `{text\|goals, budget, tag}` brief |
+| POST | `/api/ads/assistant/validate` | Check draft copy against a package's rules |
+| POST | `/api/ads/inquiries` | Book a package (runs rule validation, returns warnings/notes) |
 | GET | `/api/languages` | Language knowledge |
 
 ## Notes

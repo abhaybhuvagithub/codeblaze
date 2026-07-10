@@ -5,6 +5,16 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>CodeBlazeFeed 🔥 — The Hottest Programming Hub</title>
 <link rel="stylesheet" href="styles.css" />
+<script>
+  // Apply saved (or system) theme before first paint to avoid a flash.
+  (function () {
+    try {
+      var saved = localStorage.getItem('cbf-theme');
+      var theme = saved || (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+      document.documentElement.setAttribute('data-theme', theme);
+    } catch (e) { document.documentElement.setAttribute('data-theme', 'dark'); }
+  })();
+</script>
 </head>
 <body>
 
@@ -19,6 +29,9 @@
       <a href="#forums" data-nav="forums">Forums</a>
       <a href="#news" data-nav="news">Tech News</a>
       <a href="#advertise" data-nav="advertise" class="cta-link">Advertise</a>
+      <button class="theme-toggle" id="theme-toggle" type="button" aria-label="Toggle dark / light theme" title="Toggle theme">
+        <span class="icon-moon" aria-hidden="true">🌙</span><span class="icon-sun" aria-hidden="true">☀️</span>
+      </button>
     </nav>
   </div>
 </header>
@@ -203,6 +216,26 @@
   <section id="view-advertise" class="view hidden">
     <h1 class="section-title">Advertise <span class="slash">/</span> With Us</h1>
     <p class="muted">Reach millions of developers. Packages from <b>$100</b> to <b>$999</b>, organized by category.</p>
+
+    <!-- Agentic AI advertising assistant -->
+    <div class="assistant" id="ad-assistant">
+      <div class="assistant-head">
+        <div class="assistant-avatar">✦</div>
+        <div>
+          <h3>Blaze <span>· AI Ad Assistant</span></h3>
+          <p class="muted">Tell me your goal and budget — I'll pick the right package and book it for you.</p>
+        </div>
+        <button class="btn btn-ghost btn-sm assistant-reset" id="assistant-reset" type="button">Restart</button>
+      </div>
+      <div class="assistant-log" id="assistant-log" aria-live="polite"></div>
+      <div class="assistant-quick" id="assistant-quick"></div>
+      <form class="assistant-input" id="assistant-form" autocomplete="off">
+        <input class="input" id="assistant-text" placeholder="e.g. I want brand awareness with a $600/mo budget" />
+        <button class="btn btn-primary" type="submit">Send</button>
+      </form>
+    </div>
+
+    <h2 class="section-title" style="font-size:1.2rem">Or browse packages yourself</h2>
     <div class="chip-row" id="ad-cats"></div>
     <div class="grid-3" id="ad-grid"></div>
     <div id="ad-form" class="card form hidden">

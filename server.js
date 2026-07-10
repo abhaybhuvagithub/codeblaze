@@ -89,6 +89,152 @@ const AD_PACKAGES = [
   { id: 'takeover', category: 'Premium', name: 'Full Site Takeover', price: 999, period: '/week', desc: 'All banner slots + newsletter + pinned thread for one week.', perks: ['Every display slot', 'Newsletter feature', 'Pinned forum thread', 'Dedicated manager'] }
 ];
 
+// ---------- Agentic Advertising Assistant ----------
+// Structured "rules" for each package, derived from what each ad promises.
+// The assistant reasons over these: it matches a campaign goal + budget to the
+// best-fit packages, then enforces the placement rules when a booking is made.
+//   unit         billing period the price applies to
+//   monthlyEquiv price normalised to ~1 month, so mixed periods compare fairly
+//   goals        objectives this placement is good at
+//   reach        approx. eyeballs/impressions (0 = niche/not impression-based)
+//   maxWords     hard copy limit (null = no limit)
+//   maxLinks     links allowed in the creative/copy (null = n/a)
+//   needs        creative assets the buyer must supply
+//   requiresTag  true when a language/tag must be chosen (e.g. #python)
+//   labelled     placement is shown labelled as sponsored
+const AD_RULES = {
+  sidebar:    { unit: 'month', monthlyEquiv: 100,  goals: ['awareness', 'traffic', 'retargeting'],                 reach: 500000,  maxWords: 20,  maxLinks: 1, needs: ['300×250 image', 'click-through link'], requiresTag: false, labelled: false },
+  newsletter: { unit: 'issue', monthlyEquiv: 796,  goals: ['email', 'awareness', 'launch'],                        reach: 48000,   maxWords: 50,  maxLinks: 1, needs: ['≤50-word blurb', 'one link'],           requiresTag: false, labelled: true  },
+  'qa-sponsor':{ unit: 'month', monthlyEquiv: 299, goals: ['targeting', 'niche', 'awareness'],                     reach: 0,       maxWords: 12,  maxLinks: 1, needs: ['logo', 'tagline'],                     requiresTag: true,  labelled: true  },
+  'forum-pin':{ unit: 'month', monthlyEquiv: 399,  goals: ['community', 'engagement', 'feedback', 'launch'],       reach: 0,       maxWords: null, maxLinks: 2, needs: ['thread topic / opening post'],          requiresTag: false, labelled: true  },
+  'news-slot':{ unit: 'month', monthlyEquiv: 499,  goals: ['awareness', 'traffic', 'launch'],                     reach: 0,       maxWords: 25,  maxLinks: 1, needs: ['native card headline + link'],          requiresTag: false, labelled: true  },
+  'home-banner':{ unit:'month', monthlyEquiv: 599, goals: ['awareness', 'traffic', 'launch'],                     reach: 2000000, maxWords: 15,  maxLinks: 1, needs: ['970×250 image', 'click-through link'], requiresTag: false, labelled: false },
+  article:    { unit: 'post',  monthlyEquiv: 799,  goals: ['content', 'seo', 'thought-leadership', 'education'],   reach: 0,       maxWords: null, maxLinks: 3, needs: ['article brief / topic'],                requiresTag: false, labelled: true  },
+  takeover:   { unit: 'week',  monthlyEquiv: 999,  goals: ['launch', 'maximum', 'awareness', 'traffic'],          reach: 2500000, maxWords: null, maxLinks: 3, needs: ['all banner creatives', 'newsletter blurb'], requiresTag: false, labelled: true }
+};
+
+// Map free-text goal phrases the buyer might type onto canonical goal keys.
+const GOAL_SYNONYMS = {
+  awareness: ['awareness', 'brand', 'branding', 'visibility', 'impression', 'reach', 'exposure', 'eyeballs', 'recognition'],
+  traffic: ['traffic', 'click', 'clicks', 'visit', 'signup', 'sign-up', 'sign ups', 'conversions', 'downloads', 'installs'],
+  email: ['email', 'newsletter', 'subscriber', 'subscribers', 'inbox', 'mailing'],
+  targeting: ['targeting', 'target', 'specific language', 'niche audience', 'developers who', 'audience of'],
+  niche: ['niche', 'python', 'javascript', 'typescript', 'java', 'rust', 'golang', 'go ', 'c++', 'c#', 'php', 'swift', 'kotlin', 'sql', 'ruby'],
+  community: ['community', 'engagement', 'engage', 'discussion', 'ama', 'feedback', 'conversation', 'talk to'],
+  feedback: ['feedback', 'beta', 'survey', 'user research', 'testers'],
+  content: ['content', 'article', 'blog', 'write-up', 'writeup', 'tutorial', 'guide', 'story', 'case study'],
+  seo: ['seo', 'search', 'ranking', 'organic', 'evergreen', 'permanent'],
+  'thought-leadership': ['thought leadership', 'authority', 'credibility', 'expertise', 'educate the market'],
+  education: ['education', 'educate', 'teach', 'explain', 'developer education'],
+  launch: ['launch', 'release', 'announce', 'announcement', 'go-to-market', 'gtm', 'big push', 'debut'],
+  maximum: ['maximum', 'everything', 'all of it', 'dominate', 'takeover', 'take over', 'full', 'blitz', 'go big'],
+  retargeting: ['retarget', 'retargeting', 'remind', 'stay top of mind']
+};
+
+const KNOWN_TAGS = ['python', 'javascript', 'typescript', 'java', 'c++', 'go', 'rust', 'c#', 'php', 'swift', 'kotlin', 'sql', 'ruby'];
+
+// Turn a free-text campaign description into canonical goal keys.
+function detectGoals(text) {
+  const t = ' ' + String(text || '').toLowerCase() + ' ';
+  const hits = [];
+  for (const [goal, words] of Object.entries(GOAL_SYNONYMS)) {
+    if (words.some(w => t.includes(w))) hits.push(goal);
+  }
+  return hits;
+}
+
+// Pull a language/tag out of free text, if present.
+function detectTag(text) {
+  const t = String(text || '').toLowerCase();
+  return KNOWN_TAGS.find(tag => t.includes(tag)) || null;
+}
+
+// Parse a budget like "$500", "500/mo", "around 800 dollars", "1k".
+function parseBudget(text) {
+  const t = String(text || '').toLowerCase().replace(/,/g, '');
+  const k = t.match(/(\d+(?:\.\d+)?)\s*k\b/);
+  if (k) return Math.round(parseFloat(k[1]) * 1000);
+  const n = t.match(/\$?\s*(\d{2,6})/);
+  return n ? parseInt(n[1], 10) : null;
+}
+
+const wordCount = s => String(s || '').trim().split(/\s+/).filter(Boolean).length;
+const linkCount = s => (String(s || '').match(/https?:\/\/[^\s]+/gi) || []).length;
+
+// Score every package against the brief and return ranked recommendations.
+function recommendPackages(brief) {
+  const goals = (brief.goals && brief.goals.length ? brief.goals : detectGoals(brief.text)) || [];
+  const budget = brief.budget != null ? brief.budget : parseBudget(brief.text);
+  const tag = brief.tag || detectTag(brief.text);
+
+  const scored = AD_PACKAGES.map(pkg => {
+    const r = AD_RULES[pkg.id];
+    let score = 0;
+    const reasons = [];
+
+    // 1) Goal fit — the biggest lever.
+    const matched = goals.filter(g => r.goals.includes(g));
+    if (matched.length) {
+      score += 50 + (matched.length - 1) * 8;
+      reasons.push(`Built for ${matched.join(' & ')} campaigns.`);
+    }
+
+    // 2) Budget fit (compare on a normalised monthly basis).
+    if (budget != null) {
+      if (r.monthlyEquiv <= budget) {
+        score += 30; reasons.push(`Fits your ~$${budget} budget ($${pkg.price}${pkg.period}).`);
+      } else if (r.monthlyEquiv <= budget * 1.25) {
+        score += 8;  reasons.push(`Slight stretch on budget ($${pkg.price}${pkg.period}).`);
+      } else {
+        score -= 25; reasons.push(`Above your budget ($${pkg.price}${pkg.period}).`);
+      }
+    }
+
+    // 3) Niche / tag targeting.
+    if (tag && pkg.id === 'qa-sponsor') {
+      score += 28; reasons.push(`Puts your brand on the #${tag} tag page — exactly your audience.`);
+    }
+
+    // 4) Reach bonus for awareness-led goals.
+    if (goals.includes('awareness') && r.reach) {
+      score += Math.min(15, Math.round(r.reach / 200000));
+      reasons.push(`~${r.reach >= 1000000 ? (r.reach / 1000000) + 'M' : Math.round(r.reach / 1000) + 'K'} monthly reach.`);
+    }
+
+    return {
+      id: pkg.id, name: pkg.name, category: pkg.category, price: pkg.price, period: pkg.period,
+      desc: pkg.desc, perks: pkg.perks, score,
+      fits: budget == null ? null : r.monthlyEquiv <= budget,
+      reasons
+    };
+  }).sort((a, b) => b.score - a.score);
+
+  return { goals, budget, tag, recommendations: scored };
+}
+
+// Enforce the placement's rules against the buyer's supplied copy/creative.
+function validateBooking(pkg, campaign) {
+  const r = AD_RULES[pkg.id];
+  const copy = campaign.copy || '';
+  const warnings = [];
+  const notes = [];
+
+  if (r.maxWords != null && copy) {
+    const wc = wordCount(copy);
+    if (wc > r.maxWords) warnings.push(`${pkg.name} allows ${r.maxWords} words; your copy is ${wc}. Please trim ${wc - r.maxWords}.`);
+    else notes.push(`Copy length OK (${wc}/${r.maxWords} words).`);
+  }
+  if (r.maxLinks != null && copy) {
+    const lc = linkCount(copy);
+    if (lc > r.maxLinks) warnings.push(`${pkg.name} permits ${r.maxLinks} link${r.maxLinks === 1 ? '' : 's'}; found ${lc}.`);
+  }
+  if (r.requiresTag && !campaign.tag) warnings.push(`${pkg.name} runs on one language tag page — tell us which tag (e.g. #python).`);
+  if (r.needs && r.needs.length) notes.push(`You'll need to supply: ${r.needs.join(', ')}.`);
+  if (r.labelled) notes.push('This placement is shown clearly labelled as sponsored, per our disclosure policy.');
+
+  return { ok: warnings.length === 0, warnings, notes };
+}
+
 // ---------- RSS news ----------
 const parser = new Parser({ timeout: 10000 });
 const FEEDS = [
@@ -270,15 +416,68 @@ app.get('/api/so', async (req, res) => {
 // ---------- Advertise ----------
 app.get('/api/ads/packages', (req, res) => res.json(AD_PACKAGES));
 
+// Agentic assistant: recommend packages from a campaign brief.
+// Body: { text?, goals?, budget?, tag? } — any subset; free text is parsed.
+app.post('/api/ads/assistant/recommend', (req, res) => {
+  const { text, goals, budget, tag } = req.body || {};
+  const brief = {
+    text: String(text || '').slice(0, 1000),
+    goals: Array.isArray(goals) ? goals : undefined,
+    budget: budget != null && budget !== '' ? Number(budget) : undefined,
+    tag: tag ? String(tag).toLowerCase() : undefined
+  };
+  const result = recommendPackages(brief);
+  const top = result.recommendations.filter(r => r.score > 0).slice(0, 3);
+  res.json({
+    goals: result.goals,
+    budget: result.budget,
+    tag: result.tag,
+    top,
+    all: result.recommendations
+  });
+});
+
+// Agentic assistant: validate a draft against a package's rules before booking.
+// Body: { packageId, copy?, tag? }
+app.post('/api/ads/assistant/validate', (req, res) => {
+  const { packageId, copy, tag } = req.body || {};
+  const pkg = AD_PACKAGES.find(p => p.id === packageId);
+  if (!pkg) return res.status(400).json({ error: 'invalid packageId' });
+  res.json({ package: pkg.name, ...validateBooking(pkg, { copy, tag }) });
+});
+
 app.post('/api/ads/inquiries', (req, res) => {
-  const { packageId, company, email, message } = req.body || {};
+  const { packageId, company, email, message, goal, budget, copy, tag, duration } = req.body || {};
   const pkg = AD_PACKAGES.find(p => p.id === packageId);
   if (!pkg) return res.status(400).json({ error: 'invalid packageId' });
   if (!company || !email) return res.status(400).json({ error: 'company and email are required' });
-  const inquiry = { id: uid(), packageId, package: pkg.name, price: pkg.price, company: String(company).slice(0, 100), email: String(email).slice(0, 100), message: String(message || '').slice(0, 2000), createdAt: new Date().toISOString() };
+
+  // Run the placement rules over whatever creative/copy the buyer gave us.
+  const validation = validateBooking(pkg, { copy: copy || message, tag });
+
+  const inquiry = {
+    id: uid(), packageId, package: pkg.name, price: pkg.price, period: pkg.period,
+    company: String(company).slice(0, 100), email: String(email).slice(0, 100),
+    message: String(message || '').slice(0, 2000),
+    // Campaign details captured by the assistant (all optional).
+    goal: goal ? String(goal).slice(0, 120) : undefined,
+    budget: budget != null && budget !== '' ? Number(budget) : undefined,
+    tag: tag ? String(tag).toLowerCase().slice(0, 40) : undefined,
+    duration: duration ? String(duration).slice(0, 60) : undefined,
+    copy: copy ? String(copy).slice(0, 2000) : undefined,
+    validation,
+    createdAt: new Date().toISOString()
+  };
   adInquiries.push(inquiry);
   save('ad_inquiries', adInquiries);
-  res.status(201).json({ ok: true, id: inquiry.id, note: `Thanks ${inquiry.company}! We'll reach out about the ${pkg.name} ($${pkg.price}${pkg.period}).` });
+  res.status(201).json({
+    ok: true,
+    id: inquiry.id,
+    booked: !validation.warnings.length,
+    warnings: validation.warnings,
+    notes: validation.notes,
+    note: `Thanks ${inquiry.company}! Your ${pkg.name} ($${pkg.price}${pkg.period}) request is in${validation.warnings.length ? ' — we flagged a couple of things below' : ''}. Our team will confirm by email.`
+  });
 });
 
 // ---------- Languages knowledge ----------
