@@ -54,7 +54,7 @@ document.addEventListener('click', e => {
   if (t) { e.preventDefault(); nav(t.dataset.nav); }
 });
 
-const state = { languages: [], questions: [], news: [], newsLoaded: false, newsFilter: '', adPkg: null };
+const state = { languages: [], questions: [], news: [], newsLoaded: false, newsFilter: '', newsCategory: '', adPkg: null };
 
 // ---------- Languages ----------
 async function loadLanguages() {
@@ -241,8 +241,12 @@ async function loadNews() {
       ? `${data.items.length} stories · updated ${timeAgo(data.fetchedAt)}`
       : '';
     const sources = [...new Set(data.items.map(i => i.source))];
-    $('#news-sources').innerHTML = `<button class="chip active" data-src="">All</button>` +
+    $('#news-sources').innerHTML = `<button class="chip active" data-src="">All sources</button>` +
       sources.map(s => `<button class="chip" data-src="${esc(s)}">${esc(s)}</button>`).join('');
+    // Topic categories present in this batch (kept in display order).
+    const present = NEWS_CAT_ORDER.filter(c => data.items.some(i => newsCategory(i) === c));
+    $('#news-cats').innerHTML = `<button class="chip active" data-cat="">All topics</button>` +
+      present.map(c => `<button class="chip" data-cat="${esc(c)}">${esc(c)}</button>`).join('');
     renderNews();
     renderHomeNews(data.items);
     if (data.failedFeeds?.length) $('#news-meta').textContent += ` · unavailable: ${data.failedFeeds.join(', ')}`;
@@ -279,15 +283,62 @@ const newsCard = i => `
     <p class="muted">${esc(i.snippet)}</p>
     <div class="meta"><span>${timeAgo(i.date)}</span></div>
   </a>`;
-function renderNews() {
-  const items = state.newsFilter ? state.news.filter(i => i.source === state.newsFilter) : state.news;
-  $('#news-list').innerHTML = items.slice(0, 60).map(newsCard).join('') || '<p class="muted">No stories.</p>';
+// ---------- News topic categories ----------
+// Classify each story into a topic from its title + snippet (with a source hint).
+const NEWS_CAT_ORDER = ['AI & ML', 'Developer', 'Business', 'Security', 'Science & Health', 'Gadgets', 'General Tech'];
+const NEWS_CAT_ICON = { 'AI & ML': '🤖', 'Developer': '💻', 'Business': '📈', 'Security': '🔒', 'Science & Health': '🔬', 'Gadgets': '📱', 'General Tech': '🌐' };
+const NEWS_CAT_RULES = [
+  ['AI & ML', /\b(a\.?i\.?|artificial intelligence|machine learning|\bml\b|llm|gpt|openai|anthropic|gemini|copilot|chatbot|neural|agentic|deep learning)\b/i],
+  ['Security', /\b(security|vulnerabilit|breach|hack(?:ed|er|ing)?|exploit|malware|ransomware|\bcve\b|zero-?day|phishing|encryption|0-?day)\b/i],
+  ['Developer', /\b(programming|coding|developer|javascript|typescript|python|golang|rust|react|node\.?js|\bapi\b|framework|github|kubernetes|docker|algorithm|compiler|open-?source|devops|database|\bsql\b)\b/i],
+  ['Business', /\b(startup|funding|fundrais|ipo|revenue|\bceo\b|acquisition|valuation|layoff|stock|billion|venture|investor|earnings|hustle|side hustle)\b/i],
+  ['Science & Health', /\b(science|health|medical|cancer|disease|nasa|space|physics|quantum|biolog|vaccine|parasite|surgery|outbreak|climate)\b/i],
+  ['Gadgets', /\b(phone|android|iphone|ipad|laptop|headphone|speaker|gadget|deal|promo code|coupon|wearable|smart home|thermostat|galaxy|pixel|bluetooth)\b/i],
+];
+const NEWS_DEV_SOURCES = new Set(['Dev.to', 'freeCodeCamp', 'GeeksforGeeks', 'takeUforward', 'Scaler', 'TechGig', 'Medium']);
+function newsCategory(i) {
+  const t = (i.title || '') + ' ' + (i.snippet || '');
+  for (const [cat, re] of NEWS_CAT_RULES) if (re.test(t)) return cat;
+  if (NEWS_DEV_SOURCES.has(i.source)) return 'Developer';
+  return 'General Tech';
 }
+
+function renderNews() {
+  let items = state.newsFilter ? state.news.filter(i => i.source === state.newsFilter) : state.news;
+  if (!items.length) { $('#news-list').innerHTML = '<p class="muted">No stories.</p>'; return; }
+
+  if (state.newsCategory) {
+    // Single topic: flat grid.
+    const list = items.filter(i => newsCategory(i) === state.newsCategory).slice(0, 60);
+    $('#news-list').innerHTML = list.length
+      ? `<div class="grid-2">${list.map(newsCard).join('')}</div>`
+      : '<p class="muted">No stories in this topic right now.</p>';
+    return;
+  }
+
+  // All topics: group into labeled sections in display order.
+  const groups = {};
+  items.forEach(i => { (groups[newsCategory(i)] ||= []).push(i); });
+  const html = NEWS_CAT_ORDER.filter(c => groups[c] && groups[c].length).map(c => `
+    <section class="news-cat-block">
+      <h2 class="news-cat-title">${NEWS_CAT_ICON[c]} ${esc(c)} <span>${groups[c].length}</span></h2>
+      <div class="grid-2">${groups[c].slice(0, 12).map(newsCard).join('')}</div>
+    </section>`).join('');
+  $('#news-list').innerHTML = html || '<p class="muted">No stories.</p>';
+}
+
 $('#news-sources').onclick = e => {
   const c = e.target.closest('.chip'); if (!c) return;
   $$('#news-sources .chip').forEach(x => x.classList.remove('active'));
   c.classList.add('active');
   state.newsFilter = c.dataset.src;
+  renderNews();
+};
+$('#news-cats').onclick = e => {
+  const c = e.target.closest('.chip'); if (!c) return;
+  $$('#news-cats .chip').forEach(x => x.classList.remove('active'));
+  c.classList.add('active');
+  state.newsCategory = c.dataset.cat;
   renderNews();
 };
 

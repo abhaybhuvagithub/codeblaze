@@ -302,6 +302,21 @@ code {
 :root[data-theme="light"] .tag,
 :root[data-theme="light"] .badge-src { text-shadow: none; }
 
+/* ---------- Tech News: topic categories ---------- */
+.chip-row-cats { margin-top: 14px; margin-bottom: 2px; }
+.chip-row-cats .chip { font-size: .82rem; padding: 7px 18px; }
+.news-cat-block { margin-top: 4px; }
+.news-cat-title {
+  display: flex; align-items: center; gap: 10px;
+  font-size: 1.18rem; font-weight: 900; letter-spacing: -0.02em;
+  margin: 30px 0 4px; padding-top: 16px; border-top: 2px solid var(--line);
+}
+.news-cat-title span {
+  font-size: .72rem; font-weight: 800; color: #0D0716; background: var(--mint);
+  border-radius: 999px; padding: 2px 10px; letter-spacing: .02em;
+}
+:root[data-theme="light"] .news-cat-title span { color: #ffffff; }
+
 /* ---------- Agentic AI advertising assistant ---------- */
 .assistant {
   background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius);
