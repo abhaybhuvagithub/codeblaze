@@ -103,6 +103,13 @@ window.showLang = i => {
       <ul>${l.tips.map(t => `<li>${esc(t).replace(/`([^`]+)`/g, '<code>$1</code>')}</li>`).join('')}</ul>
       <h3>Signature snippet</h3>
       <pre>${esc(l.snippet)}</pre>
+      ${(l.links && l.links.length) ? `
+      <h3 style="margin-top:18px">🔗 Deep links &amp; resources</h3>
+      <div class="lang-links">${l.links.map(k =>
+        `<a class="lang-link" href="${esc(k.url)}" target="_blank" rel="noopener">
+           <span class="lang-link-label">${esc(k.label)}</span>
+           <span class="lang-link-host">${esc((k.url.split('/')[2] || '').replace(/^www\./, ''))}</span>
+         </a>`).join('')}</div>` : ''}
     </div>`;
   d.scrollIntoView({ behavior: 'smooth' });
 };
@@ -1021,7 +1028,7 @@ $('#hosp-sources').onclick = e => {
   if (!copy || !kEl || !tEl || !dEl) return;
 
   const slides = [
-    { kicker: 'The Hottest Programming Hub', title: 'Code harder. Ship faster. Stay sharp.', dek: 'Tips & tricks for 13 languages, community Q&A, developer forums, and live tech news from the world’s top feeds.' },
+    { kicker: 'The Hottest Programming Hub', title: 'Code harder. Ship faster. Stay sharp.', dek: 'Tips & tricks for 21 languages, community Q&A, developer forums, and live tech news from the world’s top feeds.' },
     { kicker: 'Live Tech News', title: 'Never miss what ships.', dek: '19 live feeds across AI, dev, electronics & comms, business, security and science — organized by topic and refreshed continuously.' },
     { kicker: 'Health & Medical', title: 'Stay informed. Stay well.', dek: 'Top health and medical news, grouped by topic from ScienceDaily, WHO, NPR, STAT and more.' },
     { kicker: 'Hospitality & Travel', title: 'Book. Stay. Explore.', dek: 'Top booking and hotel platforms — Booking.com, Airbnb, Marriott — plus live hospitality-industry news.' },

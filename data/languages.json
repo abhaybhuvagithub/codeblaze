@@ -3,7 +3,12 @@
     "name": "Python",
     "icon": "🐍",
     "tagline": "Readable, versatile, batteries included.",
-    "usedFor": ["AI/ML", "Data science", "Web (Django/FastAPI)", "Scripting & automation"],
+    "usedFor": [
+      "AI/ML",
+      "Data science",
+      "Web (Django/FastAPI)",
+      "Scripting & automation"
+    ],
     "tips": [
       "Use list comprehensions instead of loops: `[x*2 for x in nums if x > 0]`.",
       "Swap variables without a temp: `a, b = b, a`.",
@@ -19,7 +24,12 @@
     "name": "JavaScript",
     "icon": "⚡",
     "tagline": "The language of the web — everywhere, always.",
-    "usedFor": ["Frontend (React/Vue)", "Backend (Node.js)", "Mobile (React Native)", "Desktop (Electron)"],
+    "usedFor": [
+      "Frontend (React/Vue)",
+      "Backend (Node.js)",
+      "Mobile (React Native)",
+      "Desktop (Electron)"
+    ],
     "tips": [
       "Always use `===` over `==` to avoid type-coercion surprises.",
       "Destructure objects for cleaner code: `const { name, age } = user;`.",
@@ -35,7 +45,12 @@
     "name": "TypeScript",
     "icon": "🔷",
     "tagline": "JavaScript that scales — with types.",
-    "usedFor": ["Large web apps", "Enterprise codebases", "Node.js APIs", "Library authoring"],
+    "usedFor": [
+      "Large web apps",
+      "Enterprise codebases",
+      "Node.js APIs",
+      "Library authoring"
+    ],
     "tips": [
       "Enable `strict: true` in tsconfig — it catches whole bug classes.",
       "Prefer `unknown` over `any`; it forces you to narrow types.",
@@ -50,7 +65,12 @@
     "name": "Java",
     "icon": "☕",
     "tagline": "Write once, run anywhere. Enterprise workhorse.",
-    "usedFor": ["Enterprise backends (Spring)", "Android", "Big data (Hadoop/Kafka)", "Banking systems"],
+    "usedFor": [
+      "Enterprise backends (Spring)",
+      "Android",
+      "Big data (Hadoop/Kafka)",
+      "Banking systems"
+    ],
     "tips": [
       "Use Streams for collection pipelines: `list.stream().filter(...).map(...).toList()`.",
       "Prefer `Optional<T>` over returning null.",
@@ -65,7 +85,12 @@
     "name": "C++",
     "icon": "⚙️",
     "tagline": "Maximum performance, maximum control.",
-    "usedFor": ["Game engines", "Trading systems", "Embedded", "Browsers & OS internals"],
+    "usedFor": [
+      "Game engines",
+      "Trading systems",
+      "Embedded",
+      "Browsers & OS internals"
+    ],
     "tips": [
       "Use smart pointers (`unique_ptr`, `shared_ptr`) — avoid raw `new`/`delete`.",
       "RAII everything: resources tied to object lifetime never leak.",
@@ -80,7 +105,12 @@
     "name": "Go",
     "icon": "🐹",
     "tagline": "Simple, fast, built for cloud concurrency.",
-    "usedFor": ["Cloud services", "CLI tools", "DevOps (Docker/K8s are Go)", "Microservices"],
+    "usedFor": [
+      "Cloud services",
+      "CLI tools",
+      "DevOps (Docker/K8s are Go)",
+      "Microservices"
+    ],
     "tips": [
       "Goroutines are cheap — but always know how they exit.",
       "Use channels to communicate; don't communicate by sharing memory.",
@@ -95,7 +125,12 @@
     "name": "Rust",
     "icon": "🦀",
     "tagline": "Memory safety without garbage collection.",
-    "usedFor": ["Systems programming", "WebAssembly", "CLI tools", "Blockchain & embedded"],
+    "usedFor": [
+      "Systems programming",
+      "WebAssembly",
+      "CLI tools",
+      "Blockchain & embedded"
+    ],
     "tips": [
       "Fight the borrow checker less: clone early while learning, optimize later.",
       "Use `match` exhaustively — the compiler ensures you handle every case.",
@@ -110,7 +145,12 @@
     "name": "C#",
     "icon": "🎯",
     "tagline": "Modern, elegant, the heart of .NET.",
-    "usedFor": ["Web APIs (ASP.NET)", "Games (Unity)", "Windows apps", "Enterprise software"],
+    "usedFor": [
+      "Web APIs (ASP.NET)",
+      "Games (Unity)",
+      "Windows apps",
+      "Enterprise software"
+    ],
     "tips": [
       "LINQ makes collection queries readable: `people.Where(p => p.Age > 18).Select(p => p.Name)`.",
       "Use `async`/`await` all the way down — never `.Result` or `.Wait()`.",
@@ -125,7 +165,12 @@
     "name": "PHP",
     "icon": "🐘",
     "tagline": "Powers 75% of the web — and modern PHP is good.",
-    "usedFor": ["WordPress", "Laravel apps", "E-commerce", "Server-side web"],
+    "usedFor": [
+      "WordPress",
+      "Laravel apps",
+      "E-commerce",
+      "Server-side web"
+    ],
     "tips": [
       "Use Composer for everything — never copy-paste libraries.",
       "Enable strict types: `declare(strict_types=1);` at the top of files.",
@@ -140,7 +185,12 @@
     "name": "Swift",
     "icon": "🍎",
     "tagline": "Fast, safe, expressive — Apple's modern language.",
-    "usedFor": ["iOS/macOS apps", "watchOS/tvOS", "Server-side Swift", "SwiftUI interfaces"],
+    "usedFor": [
+      "iOS/macOS apps",
+      "watchOS/tvOS",
+      "Server-side Swift",
+      "SwiftUI interfaces"
+    ],
     "tips": [
       "Use `guard let` for early exits — keeps the happy path unindented.",
       "Prefer `let` over `var`; immutability by default.",
@@ -155,7 +205,12 @@
     "name": "Kotlin",
     "icon": "🤖",
     "tagline": "Concise, safe, 100% Java interop — Android's darling.",
-    "usedFor": ["Android apps", "Backend (Ktor/Spring)", "Multiplatform mobile", "Gradle scripts"],
+    "usedFor": [
+      "Android apps",
+      "Backend (Ktor/Spring)",
+      "Multiplatform mobile",
+      "Gradle scripts"
+    ],
     "tips": [
       "Data classes give you equals/hashCode/toString for free.",
       "Null safety built-in: `String?` vs `String`, use `?.` and `?:`.",
@@ -170,7 +225,12 @@
     "name": "SQL",
     "icon": "🗄️",
     "tagline": "The language of data — 50 years strong.",
-    "usedFor": ["Databases (Postgres/MySQL)", "Analytics", "Data warehousing", "Reporting"],
+    "usedFor": [
+      "Databases (Postgres/MySQL)",
+      "Analytics",
+      "Data warehousing",
+      "Reporting"
+    ],
     "tips": [
       "Index columns you filter and join on — but not everything.",
       "`EXPLAIN ANALYZE` reveals why queries are slow.",
@@ -185,7 +245,12 @@
     "name": "Ruby",
     "icon": "💎",
     "tagline": "Optimized for developer happiness.",
-    "usedFor": ["Web apps (Rails)", "Prototyping", "DevOps scripting", "Static sites (Jekyll)"],
+    "usedFor": [
+      "Web apps (Rails)",
+      "Prototyping",
+      "DevOps scripting",
+      "Static sites (Jekyll)"
+    ],
     "tips": [
       "Everything is an object — even integers have methods: `5.times { }`.",
       "Use symbols (`:name`) for identifiers, strings for data.",
@@ -195,5 +260,341 @@
       "String interpolation over concatenation: `\"Hello #{name}\"`."
     ],
     "snippet": "top = orders.select(&:paid)\n            .group_by(&:customer)\n            .transform_values { |o| o.sum(&:total) }"
+  },
+  {
+    "name": "C (Embedded)",
+    "icon": "🔌",
+    "tagline": "The bedrock of firmware and bare-metal control.",
+    "usedFor": [
+      "Embedded firmware",
+      "Microcontrollers (Arduino/ESP32)",
+      "Device drivers",
+      "RTOS"
+    ],
+    "tips": [
+      "Mark memory-mapped registers `volatile` so the compiler never caches them.",
+      "Use fixed-width types from `<stdint.h>`: `uint8_t`, `int32_t` — never rely on `int` size.",
+      "Set/clear/toggle bits with masks: `PORTB |= (1 << PIN);` and `PORTB &= ~(1 << PIN);`.",
+      "Avoid dynamic `malloc()` on tiny MCUs — prefer static/stack allocation to dodge fragmentation.",
+      "Keep interrupt service routines (ISRs) short; just set a flag and handle work in the main loop.",
+      "Put read-only tables in flash with `const` to save precious RAM."
+    ],
+    "snippet": "#include <stdint.h>\n#define LED (1 << 5)\nvolatile uint8_t *PORTB = (uint8_t*)0x25;\nvoid toggle(void) { *PORTB ^= LED; }  // flip GPIO bit",
+    "links": [
+      {
+        "label": "C reference (cppreference)",
+        "url": "https://en.cppreference.com/w/c"
+      },
+      {
+        "label": "Arduino Language Reference",
+        "url": "https://www.arduino.cc/reference/en/"
+      },
+      {
+        "label": "ESP-IDF Programming Guide",
+        "url": "https://docs.espressif.com/projects/esp-idf/en/latest/esp32/"
+      },
+      {
+        "label": "Barr Group Embedded C Standard",
+        "url": "https://barrgroup.com/embedded-systems/books/embedded-c-coding-standard"
+      },
+      {
+        "label": "GNU Arm Embedded Toolchain",
+        "url": "https://developer.arm.com/downloads/-/arm-gnu-toolchain-downloads"
+      }
+    ]
+  },
+  {
+    "name": "Assembly",
+    "icon": "⚙️",
+    "tagline": "Machine-level control, one instruction at a time.",
+    "usedFor": [
+      "Processor architecture",
+      "Boot / startup code",
+      "Cycle-critical routines",
+      "Reverse engineering"
+    ],
+    "tips": [
+      "Learn your target’s register set and calling convention before anything else.",
+      "ARM (Thumb) dominates MCUs; x86-64 dominates PCs — the mental model differs a lot.",
+      "Use assembly only for hot paths or ISRs; write the rest in C and inspect the disassembly.",
+      "Inline assembly in C via `asm volatile(...)` lets you touch instructions C can’t express.",
+      "Keep the chip’s instruction-set datasheet open — opcodes and cycle counts live there.",
+      "Compiler Explorer (godbolt) shows exactly what your C compiles down to."
+    ],
+    "snippet": "@ ARM: add two registers\n    ADD r0, r1, r2   @ r0 = r1 + r2\n    BX  lr           @ return",
+    "links": [
+      {
+        "label": "Arm Developer Documentation",
+        "url": "https://developer.arm.com/documentation/"
+      },
+      {
+        "label": "x86 Assembly (Wikibooks)",
+        "url": "https://en.wikibooks.org/wiki/X86_Assembly"
+      },
+      {
+        "label": "Compiler Explorer (godbolt)",
+        "url": "https://godbolt.org/"
+      },
+      {
+        "label": "NASM Documentation",
+        "url": "https://www.nasm.us/docs.php"
+      },
+      {
+        "label": "AVR Instruction Set Manual",
+        "url": "https://ww1.microchip.com/downloads/en/devicedoc/atmel-0856-avr-instruction-set-manual.pdf"
+      }
+    ]
+  },
+  {
+    "name": "Verilog",
+    "icon": "🧩",
+    "tagline": "Describe digital hardware, synthesize to silicon.",
+    "usedFor": [
+      "RTL design",
+      "FPGA logic",
+      "ASIC design",
+      "Testbenches"
+    ],
+    "tips": [
+      "Use non-blocking `<=` for sequential (clocked) logic, blocking `=` for combinational.",
+      "Clocked logic lives in `always @(posedge clk)`; keep resets consistent (sync vs async).",
+      "Stick to the synthesizable subset — not every legal Verilog maps to gates.",
+      "Fully specify combinational `always` blocks (or use `always @*`) to avoid accidental latches.",
+      "`wire` for continuous assignments, `reg` for values assigned inside `always` blocks.",
+      "Simulate with a testbench before you ever touch the FPGA."
+    ],
+    "snippet": "module dff(input clk, input d, output reg q);\n  always @(posedge clk)\n    q <= d;   // D flip-flop\nendmodule",
+    "links": [
+      {
+        "label": "ChipVerify Verilog Tutorial",
+        "url": "https://www.chipverify.com/verilog/verilog-tutorial"
+      },
+      {
+        "label": "ASIC-World Verilog",
+        "url": "https://www.asic-world.com/verilog/index.html"
+      },
+      {
+        "label": "IEEE 1364 (Verilog Standard)",
+        "url": "https://standards.ieee.org/ieee/1364/2052/"
+      },
+      {
+        "label": "EDA Playground (online sim)",
+        "url": "https://www.edaplayground.com/"
+      },
+      {
+        "label": "Icarus Verilog",
+        "url": "https://steveicarus.github.io/iverilog/"
+      }
+    ]
+  },
+  {
+    "name": "VHDL",
+    "icon": "🛡️",
+    "tagline": "Strongly-typed HDL for mission-critical hardware.",
+    "usedFor": [
+      "RTL design",
+      "Aerospace & defense",
+      "FPGA",
+      "Simulation"
+    ],
+    "tips": [
+      "It’s strongly typed: use `std_logic` / `std_logic_vector` and convert explicitly.",
+      "Every design is an `entity` (ports) plus one or more `architecture` bodies.",
+      "List every read signal in a process’s sensitivity list, or use `process(all)` (VHDL-2008).",
+      "Signals update at the next delta cycle; variables update immediately — know the difference.",
+      "Use `ieee.numeric_std` (`signed`/`unsigned`) for arithmetic, not the deprecated std_logic_arith.",
+      "Its verbosity is a feature — it catches width and type mismatches at compile time."
+    ],
+    "snippet": "library ieee; use ieee.std_logic_1164.all;\nentity dff is port(clk, d: in std_logic; q: out std_logic); end;\narchitecture rtl of dff is begin\n  process(clk) begin\n    if rising_edge(clk) then q <= d; end if;\n  end process;\nend architecture;",
+    "links": [
+      {
+        "label": "Nandland — Learn VHDL",
+        "url": "https://nandland.com/learn-vhdl/"
+      },
+      {
+        "label": "ASIC-World VHDL",
+        "url": "https://www.asic-world.com/vhdl/index.html"
+      },
+      {
+        "label": "IEEE 1076 (VHDL Standard)",
+        "url": "https://standards.ieee.org/ieee/1076/10800/"
+      },
+      {
+        "label": "GHDL (open-source simulator)",
+        "url": "https://ghdl.github.io/ghdl/"
+      },
+      {
+        "label": "EDA Playground (online sim)",
+        "url": "https://www.edaplayground.com/"
+      }
+    ]
+  },
+  {
+    "name": "SystemVerilog",
+    "icon": "🔬",
+    "tagline": "Verilog supercharged for verification.",
+    "usedFor": [
+      "Design verification",
+      "UVM testbenches",
+      "Assertions (SVA)",
+      "Constrained-random"
+    ],
+    "tips": [
+      "Build reusable testbenches with classes and OOP — the backbone of the UVM methodology.",
+      "Catch protocol bugs with SystemVerilog Assertions (SVA): `assert property(@(posedge clk) req |-> ##2 ack);`",
+      "Drive corner cases using constrained-random: `rand` variables plus `constraint` blocks.",
+      "Measure completeness with functional coverage (`covergroup` / `coverpoint`).",
+      "Use `interface` and `clocking` blocks to cleanly connect testbench to DUT and avoid races.",
+      "Keep synthesizable RTL separate from verification-only constructs."
+    ],
+    "snippet": "class Packet;\n  rand bit [7:0] addr;\n  constraint c_addr { addr inside {[8'h10:8'h20]}; }\nendclass\n// randomize(): pkt.randomize();",
+    "links": [
+      {
+        "label": "ChipVerify SystemVerilog Tutorial",
+        "url": "https://www.chipverify.com/systemverilog/systemverilog-tutorial"
+      },
+      {
+        "label": "Accellera UVM",
+        "url": "https://www.accellera.org/downloads/standards/uvm"
+      },
+      {
+        "label": "IEEE 1800 (SystemVerilog Standard)",
+        "url": "https://standards.ieee.org/ieee/1800/7743/"
+      },
+      {
+        "label": "Verification Academy",
+        "url": "https://verificationacademy.com/"
+      },
+      {
+        "label": "EDA Playground (online sim)",
+        "url": "https://www.edaplayground.com/"
+      }
+    ]
+  },
+  {
+    "name": "MATLAB",
+    "icon": "📊",
+    "tagline": "Math, modeling, and DSP for engineers.",
+    "usedFor": [
+      "Signal processing (DSP)",
+      "Control systems",
+      "Communication sim",
+      "Simulink modeling"
+    ],
+    "tips": [
+      "Vectorize: operate on whole arrays instead of writing element-by-element loops.",
+      "Preallocate arrays (`z = zeros(1,N);`) before filling them to avoid slow reallocation.",
+      "Use `fft()` for spectral analysis and `filter()`/`conv()` for DSP pipelines.",
+      "Model whole communication/control systems visually in Simulink before building hardware.",
+      "Lean on toolboxes — Signal Processing, Communications, Control System — instead of reinventing.",
+      "End statements with `;` to suppress console echo in long scripts."
+    ],
+    "snippet": "Fs = 1000; t = 0:1/Fs:1-1/Fs;\nx = sin(2*pi*50*t) + sin(2*pi*120*t);\nX = abs(fft(x));            % magnitude spectrum\nplot(Fs*(0:numel(x)-1)/numel(x), X);",
+    "links": [
+      {
+        "label": "MATLAB Documentation",
+        "url": "https://www.mathworks.com/help/matlab/"
+      },
+      {
+        "label": "Signal Processing Toolbox",
+        "url": "https://www.mathworks.com/help/signal/"
+      },
+      {
+        "label": "MATLAB Onramp (free course)",
+        "url": "https://matlabacademy.mathworks.com/details/matlab-onramp/gettingstarted"
+      },
+      {
+        "label": "Simulink Documentation",
+        "url": "https://www.mathworks.com/help/simulink/"
+      },
+      {
+        "label": "GNU Octave (open-source alt)",
+        "url": "https://octave.org/"
+      }
+    ]
+  },
+  {
+    "name": "Tcl",
+    "icon": "🧰",
+    "tagline": "The scripting glue of EDA tool flows.",
+    "usedFor": [
+      "EDA automation",
+      "Synthesis / PnR scripts",
+      "Timing constraints (SDC)",
+      "CAD tooling"
+    ],
+    "tips": [
+      "Everything is a string — quoting and `{braces}` (defer eval) vs `\"quotes\"` (substitute) matter.",
+      "Vivado, Synopsys Design Compiler, and Cadence tools all drive their consoles with Tcl.",
+      "Define reusable steps with `proc name {args} { ... }` and `source` shared scripts.",
+      "Set variables with `set x 5` and read them with `$x`; commands go in `[brackets]`.",
+      "Timing constraints (`.sdc`) are literally Tcl — `create_clock`, `set_input_delay`, etc.",
+      "Use `foreach` and `lindex`/`llength` for list-driven automation over pins and nets."
+    ],
+    "snippet": "proc greet {name} {\n  puts \"Hello, $name\"\n}\nforeach clk {clk_a clk_b} {\n  create_clock -period 10 [get_ports $clk]\n}",
+    "links": [
+      {
+        "label": "Tcl Developer Site",
+        "url": "https://www.tcl-lang.org/"
+      },
+      {
+        "label": "Tcl Manual Pages",
+        "url": "https://www.tcl-lang.org/man/"
+      },
+      {
+        "label": "Tcl/Tk Tutorial (TutorialsPoint)",
+        "url": "https://www.tutorialspoint.com/tcl-tk/index.htm"
+      },
+      {
+        "label": "Vivado Tcl Scripting (UG894)",
+        "url": "https://docs.amd.com/r/en-US/ug894-vivado-tcl-scripting"
+      },
+      {
+        "label": "TkDocs Tutorial",
+        "url": "https://tkdocs.com/tutorial/"
+      }
+    ]
+  },
+  {
+    "name": "Perl",
+    "icon": "🐪",
+    "tagline": "Text-munging workhorse in chip design.",
+    "usedFor": [
+      "EDA scripting",
+      "Log parsing",
+      "Regex processing",
+      "Legacy automation"
+    ],
+    "tips": [
+      "Its killer feature is regex: `if ($line =~ /ERROR:\\s+(\\d+)/) { ... }`.",
+      "Always start scripts with `use strict; use warnings;` to catch bugs early.",
+      "`$_` is the implicit default variable for loops and matches — concise but read carefully.",
+      "Hashes give O(1) lookups: `my %seen; $seen{$key}++;`.",
+      "One-liners are gold for log crunching: `perl -ne 'print if /FAIL/' run.log`.",
+      "CPAN has a module for almost everything — check before writing your own."
+    ],
+    "snippet": "use strict; use warnings;\nwhile (my $line = <STDIN>) {\n  print \"$1\\n\" if $line =~ /net\\s+(\\w+)/;\n}",
+    "links": [
+      {
+        "label": "Perl.org Documentation",
+        "url": "https://www.perl.org/docs.html"
+      },
+      {
+        "label": "perldoc (official docs)",
+        "url": "https://perldoc.perl.org/"
+      },
+      {
+        "label": "Learn Perl",
+        "url": "https://learn.perl.org/"
+      },
+      {
+        "label": "perlintro",
+        "url": "https://perldoc.perl.org/perlintro"
+      },
+      {
+        "label": "CPAN (module archive)",
+        "url": "https://www.cpan.org/"
+      }
+    ]
   }
 ]

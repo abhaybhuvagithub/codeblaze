@@ -623,3 +623,11 @@ a:focus:not(:focus-visible), button:focus:not(:focus-visible), input:focus:not(:
   .ss-foot-keys { display: none; }
   .ss-foot { justify-content: flex-end; }
 }
+
+/* ---------- Language deep links ---------- */
+.lang-links { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 10px; margin-top: 10px; }
+.lang-link { display: flex; flex-direction: column; gap: 2px; padding: 10px 14px; border: 1px solid var(--line); border-radius: 10px; background: var(--card); color: var(--ink); transition: border-color .15s, transform .15s, box-shadow .15s; }
+.lang-link:hover { border-color: var(--magenta); transform: translateY(-2px); box-shadow: 0 6px 20px rgba(249,0,255,.22); text-decoration: none; }
+.lang-link-label { font-weight: 700; font-size: .92rem; }
+.lang-link:hover .lang-link-label { color: var(--lime); }
+.lang-link-host { font-size: .74rem; color: var(--muted); }
