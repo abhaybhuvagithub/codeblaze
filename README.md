@@ -2,6 +2,8 @@
 
 The hottest programming hub: language tips & tricks, community Q&A, developer forums, live world tech news from popular RSS feeds, and an Advertise With Us section ($100–$999, category-wise).
 
+This website is prepared for personal study and research. The file is not to be copied or reposted for promotion of any website or individuals or for commercial purpose without permission. Please help to maintain respect for author.
+
 https://codeblaze-eng9.onrender.com/
 
 ## Quick start
