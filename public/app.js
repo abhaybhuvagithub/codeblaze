@@ -966,3 +966,43 @@ $('#hosp-sources').onclick = e => {
   tick();
   setInterval(tick, 1000);
 })();
+
+// ---------- Rotating hero (revolves through the site's categories) ----------
+(function initHeroRotator() {
+  const copy = document.getElementById('hero-copy');
+  const dotsEl = document.getElementById('hero-dots');
+  const kEl = document.getElementById('hero-kicker');
+  const tEl = document.getElementById('hero-title');
+  const dEl = document.getElementById('hero-dek');
+  if (!copy || !kEl || !tEl || !dEl) return;
+
+  const slides = [
+    { kicker: 'The Hottest Programming Hub', title: 'Code harder. Ship faster. Stay sharp.', dek: 'Tips & tricks for 13 languages, community Q&A, developer forums, and live tech news from the world’s top feeds.' },
+    { kicker: 'Live Tech News', title: 'Never miss what ships.', dek: '15 live feeds across AI, dev, business, security and science — organized by topic and refreshed continuously.' },
+    { kicker: 'Health & Medical', title: 'Stay informed. Stay well.', dek: 'Top health and medical news, grouped by topic from ScienceDaily, WHO, NPR, STAT and more.' },
+    { kicker: 'Hospitality & Travel', title: 'Book. Stay. Explore.', dek: 'Top booking and hotel platforms — Booking.com, Airbnb, Marriott — plus live hospitality-industry news.' },
+    { kicker: 'Jobs & Careers', title: 'Find your next role.', dek: 'Top global job boards, tech & startup roles, remote-first work, and the world’s biggest staffing firms.' },
+    { kicker: 'Practice & Compete', title: 'Sharpen your edge.', dek: 'LeetCode, NeetCode, Codeforces and ICPC — crack interviews and climb the competitive-programming ranks.' }
+  ];
+
+  let idx = 0, timer = null;
+  dotsEl.innerHTML = slides.map((s, i) =>
+    `<button class="hero-dot${i === 0 ? ' active' : ''}" role="tab" aria-label="${esc(s.kicker)}" data-i="${i}"></button>`).join('');
+  const dots = [...dotsEl.querySelectorAll('.hero-dot')];
+
+  function show(i) {
+    idx = (i + slides.length) % slides.length;
+    const s = slides[idx];
+    copy.classList.remove('swap'); void copy.offsetWidth; // restart the fade
+    kEl.textContent = s.kicker; tEl.textContent = s.title; dEl.textContent = s.dek;
+    copy.classList.add('swap');
+    dots.forEach((d, n) => d.classList.toggle('active', n === idx));
+  }
+  function start() { stop(); timer = setInterval(() => show(idx + 1), 5000); }
+  function stop() { if (timer) clearInterval(timer); timer = null; }
+
+  dotsEl.addEventListener('click', e => { const d = e.target.closest('.hero-dot'); if (!d) return; show(+d.dataset.i); start(); });
+  const hero = document.getElementById('home-hero');
+  if (hero) { hero.addEventListener('mouseenter', stop); hero.addEventListener('mouseleave', start); }
+  start();
+})();

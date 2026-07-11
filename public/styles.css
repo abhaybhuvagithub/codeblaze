@@ -540,3 +540,16 @@ a:focus:not(:focus-visible), button:focus:not(:focus-visible), input:focus:not(:
   font-size: .82rem; font-weight: 700; letter-spacing: .02em;
   color: var(--mint); margin-bottom: 12px;
 }
+
+/* ---------- Rotating hero ---------- */
+.hero-copy { min-height: clamp(200px, 25vh, 250px); }
+.hero-copy.swap { animation: heroSwap .5s ease; }
+@keyframes heroSwap { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+.hero-dots { display: flex; gap: 8px; margin: 4px 0 4px; }
+.hero-dot {
+  width: 26px; height: 5px; border-radius: 999px; border: none; cursor: pointer; padding: 0;
+  background: var(--line); transition: background .2s, width .2s;
+}
+.hero-dot:hover { background: var(--muted); }
+.hero-dot.active { background: var(--magenta); width: 40px; box-shadow: 0 0 10px rgba(249,0,255,calc(var(--glow) * 1.2)); }
+@media (max-width: 600px) { .hero-copy { min-height: 210px; } }
