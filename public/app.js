@@ -857,7 +857,7 @@ async function loadVisits() {
 
   function open() {
     panel.classList.add('open'); textEl.focus();
-    if (!greeted) { greeted = true; setTimeout(() => say(`${greeting()} J.A.R.V.I.S. online. Say “brief me” for today's rundown.`, `${greeting()} Jarvis online. How may I assist?`), 250); }
+    if (!greeted) { greeted = true; setTimeout(() => say(`${greeting()} GARUDA online. Say “brief me” for today's rundown.`, `${greeting()} Garuda online. How may I assist?`), 250); }
   }
   function close() { panel.classList.remove('open'); try { speechSynthesis.cancel(); } catch (e) {} orb.classList.remove('jarvis-speaking'); }
   orb.addEventListener('click', () => panel.classList.contains('open') ? close() : open());
