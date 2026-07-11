@@ -14,7 +14,33 @@ const DATA_DIR = path.join(__dirname, 'data');
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true })); // htmx posts form-encoded data
-app.use(express.static(path.join(__dirname, 'public')));
+
+// ---------- Cache-busting ----------
+// A fresh BUILD_ID each server start (i.e. each deploy). We rewrite the HTML so
+// app.js / styles.css carry ?v=<BUILD_ID>, forcing browsers to fetch the new
+// files after a deploy instead of serving a stale cached copy.
+const BUILD_ID = Date.now().toString(36);
+function sendIndex(req, res) {
+  try {
+    let html = fs.readFileSync(path.join(__dirname, 'public', 'index.html'), 'utf8');
+    html = html
+      .replace(/href="styles\.css(?:\?[^"]*)?"/, `href="styles.css?v=${BUILD_ID}"`)
+      .replace(/src="app\.js(?:\?[^"]*)?"/, `src="app.js?v=${BUILD_ID}"`);
+    res.set('Cache-Control', 'no-cache');
+    res.type('html').send(html);
+  } catch (e) {
+    res.status(500).send('index unavailable');
+  }
+}
+app.get('/', sendIndex);
+app.get('/index.html', sendIndex);
+
+// Static assets: versioned files (?v=) can be cached hard; everything else revalidates.
+app.use(express.static(path.join(__dirname, 'public'), {
+  setHeaders(res, filePath) {
+    if (/\.(js|css)$/.test(filePath)) res.set('Cache-Control', 'no-cache');
+  }
+}));
 
 // ---------- Email (Gmail SMTP) ----------
 // Enabled only when GMAIL_USER + GMAIL_APP_PASSWORD are set (App Password, not
