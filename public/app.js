@@ -275,19 +275,24 @@ const newsCard = i => `
   </a>`;
 // ---------- News topic categories ----------
 // Classify each story into a topic from its title + snippet (with a source hint).
-const NEWS_CAT_ORDER = ['AI & ML', 'Developer', 'Business', 'Security', 'Science & Health', 'Gadgets', 'General Tech'];
-const NEWS_CAT_ICON = { 'AI & ML': '🤖', 'Developer': '💻', 'Business': '📈', 'Security': '🔒', 'Science & Health': '🔬', 'Gadgets': '📱', 'General Tech': '🌐' };
+const NEWS_CAT_ORDER = ['AI & ML', 'Developer', 'Electronics & Comm', 'Business', 'Security', 'Science & Health', 'Gadgets', 'General Tech'];
+const NEWS_CAT_ICON = { 'AI & ML': '🤖', 'Developer': '💻', 'Electronics & Comm': '📡', 'Business': '📈', 'Security': '🔒', 'Science & Health': '🔬', 'Gadgets': '📱', 'General Tech': '🌐' };
 const NEWS_CAT_RULES = [
   ['AI & ML', /\b(a\.?i\.?|artificial intelligence|machine learning|\bml\b|llm|gpt|openai|anthropic|gemini|copilot|chatbot|neural|agentic|deep learning)\b/i],
   ['Security', /\b(security|vulnerabilit|breach|hack(?:ed|er|ing)?|exploit|malware|ransomware|\bcve\b|zero-?day|phishing|encryption|0-?day)\b/i],
+  // Electronics & Communication Engineering: semiconductors, embedded, RF/telecom, IoT, signal processing.
+  ['Electronics & Comm', /\b(semiconductor|microchip|chipset|\bchips?\b|silicon|wafer|foundry|transistor|fpga|asic|\bpcb\b|\bpcba\b|mems|embedded|microcontroller|\bmcu\b|\bvlsi\b|integrated circuit|circuit board|\brf\b|radio frequency|antenna|5g|6g|\blte\b|telecom|telecommunication|\biot\b|internet of things|\bdsp\b|signal processing|modulation|nanometer|\bnm\b node|electronics|tsmc|qualcomm|foxconn|ericsson|\bnokia\b|edge computing)\b/i],
   ['Developer', /\b(programming|coding|developer|javascript|typescript|python|golang|rust|react|node\.?js|\bapi\b|framework|github|kubernetes|docker|algorithm|compiler|open-?source|devops|database|\bsql\b)\b/i],
   ['Business', /\b(startup|funding|fundrais|ipo|revenue|\bceo\b|acquisition|valuation|layoff|stock|billion|venture|investor|earnings|hustle|side hustle)\b/i],
   ['Science & Health', /\b(science|health|medical|cancer|disease|nasa|space|physics|quantum|biolog|vaccine|parasite|surgery|outbreak|climate)\b/i],
   ['Gadgets', /\b(phone|android|iphone|ipad|laptop|headphone|speaker|gadget|deal|promo code|coupon|wearable|smart home|thermostat|galaxy|pixel|bluetooth)\b/i],
 ];
 const NEWS_DEV_SOURCES = new Set(['Dev.to', 'freeCodeCamp', 'GeeksforGeeks', 'takeUforward', 'Scaler', 'TechGig', 'Medium']);
+// Dedicated ECE industry sources — anything from these lands in Electronics & Comm.
+const NEWS_ECE_SOURCES = new Set(['EE Times', 'IEEE Spectrum', 'EDN', 'Semiconductor Engineering']);
 function newsCategory(i) {
   const t = (i.title || '') + ' ' + (i.snippet || '');
+  if (NEWS_ECE_SOURCES.has(i.source)) return 'Electronics & Comm';
   for (const [cat, re] of NEWS_CAT_RULES) if (re.test(t)) return cat;
   if (NEWS_DEV_SOURCES.has(i.source)) return 'Developer';
   return 'General Tech';
@@ -1017,7 +1022,7 @@ $('#hosp-sources').onclick = e => {
 
   const slides = [
     { kicker: 'The Hottest Programming Hub', title: 'Code harder. Ship faster. Stay sharp.', dek: 'Tips & tricks for 13 languages, community Q&A, developer forums, and live tech news from the world’s top feeds.' },
-    { kicker: 'Live Tech News', title: 'Never miss what ships.', dek: '15 live feeds across AI, dev, business, security and science — organized by topic and refreshed continuously.' },
+    { kicker: 'Live Tech News', title: 'Never miss what ships.', dek: '19 live feeds across AI, dev, electronics & comms, business, security and science — organized by topic and refreshed continuously.' },
     { kicker: 'Health & Medical', title: 'Stay informed. Stay well.', dek: 'Top health and medical news, grouped by topic from ScienceDaily, WHO, NPR, STAT and more.' },
     { kicker: 'Hospitality & Travel', title: 'Book. Stay. Explore.', dek: 'Top booking and hotel platforms — Booking.com, Airbnb, Marriott — plus live hospitality-industry news.' },
     { kicker: 'Jobs & Careers', title: 'Find your next role.', dek: 'Top global job boards, tech & startup roles, remote-first work, and the world’s biggest staffing firms.' },

@@ -357,7 +357,12 @@ const FEEDS = [
   { name: 'MakeUseOf', url: 'https://www.makeuseof.com/feed/' },
   { name: 'Medium', url: 'https://medium.com/feed/tag/programming' },
   { name: 'Business Insider', url: 'https://www.businessinsider.com/rss' },
-  { name: 'Gartner', url: 'https://www.gartner.com/en/newsroom/rss' }
+  { name: 'Gartner', url: 'https://www.gartner.com/en/newsroom/rss' },
+  // Electronics & Communication (ECE) industry channels
+  { name: 'EE Times', url: 'https://www.eetimes.com/feed/' },
+  { name: 'IEEE Spectrum', url: 'https://spectrum.ieee.org/rss/fulltext' },
+  { name: 'EDN', url: 'https://www.edn.com/feed/' },
+  { name: 'Semiconductor Engineering', url: 'https://semiengineering.com/feed/' }
 ];
 
 // Top health & medical news sources (live RSS).
