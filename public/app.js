@@ -48,6 +48,7 @@ function nav(view) {
   window.scrollTo({ top: 0 });
   if (view === 'news' && !state.newsLoaded) loadNews();
   if (view === 'health' && !state.healthLoaded) loadHealth();
+  if (view === 'hospitality' && !state.hospitalityLoaded) loadHospitality();
   if (view === 'advertise' && typeof aaStart === 'function' && !AA.started) aaStart();
 }
 document.addEventListener('click', e => {
@@ -76,7 +77,7 @@ function closeMobileNav() {
   });
 })();
 
-const state = { languages: [], questions: [], news: [], newsLoaded: false, newsFilter: '', newsCategory: '', health: [], healthLoaded: false, healthFilter: '', healthCategory: '', adPkg: null };
+const state = { languages: [], questions: [], news: [], newsLoaded: false, newsFilter: '', newsCategory: '', health: [], healthLoaded: false, healthFilter: '', healthCategory: '', hospitality: [], hospitalityLoaded: false, hospitalityFilter: '', adPkg: null };
 
 // ---------- Languages ----------
 async function loadLanguages() {
@@ -920,4 +921,48 @@ async function loadVisits() {
     const nv = document.getElementById('site-nav');
     if (nv && nv.classList.contains('open')) { nv.classList.remove('open'); const tg = document.getElementById('nav-toggle'); if (tg) tg.setAttribute('aria-expanded', 'false'); }
   });
+})();
+
+// ---------- Hospitality feeds ----------
+async function loadHospitality() {
+  try {
+    const data = await api('/api/hospitality-news');
+    state.hospitality = data.items;
+    state.hospitalityLoaded = true;
+    $('#hosp-meta').textContent = data.items.length
+      ? `${data.items.length} stories · updated ${timeAgo(data.fetchedAt)}`
+      : '';
+    const sources = [...new Set(data.items.map(i => i.source))];
+    $('#hosp-sources').innerHTML = `<button class="chip active" data-src="">All sources</button>` +
+      sources.map(s => `<button class="chip" data-src="${esc(s)}">${esc(s)}</button>`).join('');
+    renderHospitality();
+    if (data.failedFeeds?.length) $('#hosp-meta').textContent += ` · unavailable: ${data.failedFeeds.join(', ')}`;
+  } catch (e) {
+    $('#hosp-list').innerHTML = `<p class="muted">Couldn't load hospitality feeds (${esc(e.message)}). Reload to try again.</p>`;
+  }
+}
+function renderHospitality() {
+  const items = state.hospitalityFilter ? state.hospitality.filter(i => i.source === state.hospitalityFilter) : state.hospitality;
+  $('#hosp-list').innerHTML = items.slice(0, 60).map(newsCard).join('') || '<p class="muted">No stories.</p>';
+}
+$('#hosp-sources').onclick = e => {
+  const c = e.target.closest('.chip'); if (!c) return;
+  $$('#hosp-sources .chip').forEach(x => x.classList.remove('active'));
+  c.classList.add('active');
+  state.hospitalityFilter = c.dataset.src;
+  renderHospitality();
+};
+
+// ---------- Home page live clock ----------
+(function initClock() {
+  const el = document.getElementById('home-clock');
+  if (!el) return;
+  const tick = () => {
+    const now = new Date();
+    const date = now.toLocaleDateString(undefined, { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+    const time = now.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+    el.textContent = `🕒 ${date} · ${time}`;
+  };
+  tick();
+  setInterval(tick, 1000);
 })();

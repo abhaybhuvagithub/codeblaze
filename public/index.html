@@ -34,6 +34,7 @@
       <a href="#forums" data-nav="forums">Forums</a>
       <a href="#news" data-nav="news">Tech News</a>
       <a href="#health" data-nav="health">Health</a>
+      <a href="#hospitality" data-nav="hospitality">Hospitality</a>
       <!-- Advertise link hidden (kept for future use); remove the "hidden" class to re-enable. -->
       <a href="#advertise" data-nav="advertise" class="cta-link hidden">Advertise</a>
       <button class="theme-toggle" id="theme-toggle" type="button" aria-label="Toggle dark / light theme" title="Toggle theme">
@@ -50,6 +51,7 @@
   <section id="view-home" class="view">
     <div class="home-top">
       <div class="hero" id="home-hero">
+        <div class="home-clock" id="home-clock" aria-live="off">—</div>
         <span class="kicker">The Hottest Programming Hub</span>
         <h1>Code harder. Ship faster. Stay sharp.</h1>
         <p class="dek">Tips &amp; tricks for 13 languages, community Q&amp;A, developer forums, and live tech news from the world's top feeds.</p>
@@ -350,6 +352,33 @@
     <div class="chip-row chip-row-cats" id="health-cats"></div>
     <div class="chip-row" id="health-sources"></div>
     <div id="health-list"><p class="muted">Loading health feeds…</p></div>
+  </section>
+
+  <!-- HOSPITALITY -->
+  <section id="view-hospitality" class="view hidden">
+    <div class="split-head">
+      <h1 class="section-title">Hospitality <span class="slash">/</span> Services &amp; Live Feeds</h1>
+      <span class="muted" id="hosp-meta"></span>
+    </div>
+    <p class="muted">Top booking, hotel and travel platforms — plus live hospitality-industry news. Every link opens the original site.</p>
+
+    <h2 class="section-title" style="font-size:1.2rem">Top Services <span class="slash">/</span> Book &amp; Stay</h2>
+    <div class="grid-3">
+      <a class="card clickable" href="https://www.booking.com/" target="_blank" rel="noopener"><span class="tag">Booking</span><h3>Booking.com</h3><p>The world's largest accommodation booking platform — hotels, homes, and more.</p></a>
+      <a class="card clickable" href="https://www.airbnb.com/" target="_blank" rel="noopener"><span class="tag">Stays</span><h3>Airbnb</h3><p>Homes, apartments, and unique stays worldwide, plus local experiences.</p></a>
+      <a class="card clickable" href="https://www.expedia.com/" target="_blank" rel="noopener"><span class="tag">Travel</span><h3>Expedia</h3><p>Flights, hotels, cars, and vacation packages booked in one place.</p></a>
+      <a class="card clickable" href="https://www.marriott.com/" target="_blank" rel="noopener"><span class="tag">Hotels</span><h3>Marriott</h3><p>The world's largest hotel chain — 30+ brands from Ritz-Carlton to Courtyard.</p></a>
+      <a class="card clickable" href="https://www.hilton.com/" target="_blank" rel="noopener"><span class="tag">Hotels</span><h3>Hilton</h3><p>A global hotel group spanning Waldorf Astoria to Hampton by Hilton.</p></a>
+      <a class="card clickable" href="https://www.hyatt.com/" target="_blank" rel="noopener"><span class="tag">Hotels</span><h3>Hyatt</h3><p>Luxury and lifestyle hotels and resorts worldwide, with World of Hyatt rewards.</p></a>
+      <a class="card clickable" href="https://www.tripadvisor.com/" target="_blank" rel="noopener"><span class="tag">Reviews</span><h3>Tripadvisor</h3><p>Traveler reviews, ratings, and bookings for hotels, restaurants, and things to do.</p></a>
+      <a class="card clickable" href="https://www.makemytrip.com/" target="_blank" rel="noopener"><span class="tag">India</span><h3>MakeMyTrip</h3><p>India's leading online travel company — flights, hotels, and holidays.</p></a>
+      <a class="card clickable" href="https://www.oyorooms.com/" target="_blank" rel="noopener"><span class="tag">India</span><h3>OYO</h3><p>Budget hotels and homes across India and beyond, under one brand.</p></a>
+    </div>
+
+    <h2 class="section-title" style="font-size:1.2rem">Industry News <span class="slash">/</span> Live Feeds</h2>
+    <p class="muted">Aggregated live from leading hospitality and travel-industry publications. Filter by publication below.</p>
+    <div class="chip-row" id="hosp-sources"></div>
+    <div id="hosp-list" class="grid-2"><p class="muted">Loading hospitality feeds…</p></div>
   </section>
 
   <!-- ADVERTISE -->

@@ -348,9 +348,22 @@ const HEALTH_FEEDS = [
   { name: 'NIH Director', url: 'https://directorsblog.nih.gov/feed/' }
 ];
 
+// Top hospitality, hotel & travel-industry news sources (live RSS).
+const HOSPITALITY_FEEDS = [
+  { name: 'Skift', url: 'https://skift.com/feed/' },
+  { name: 'PhocusWire', url: 'https://www.phocuswire.com/rss' },
+  { name: 'Lodging Magazine', url: 'https://lodgingmagazine.com/feed/' },
+  { name: 'eHotelier', url: 'https://insights.ehotelier.com/feed/' },
+  { name: 'Hospitality Net', url: 'https://www.hospitalitynet.org/rss/global.xml' },
+  { name: 'Hotel Management', url: 'https://www.hotelmanagement.net/rss.xml' },
+  { name: 'The Points Guy', url: 'https://thepointsguy.com/feed/' },
+  { name: 'Travel + Leisure', url: 'https://www.travelandleisure.com/feeds/all.rss' }
+];
+
 const NEWS_TTL = 10 * 60 * 1000; // 10 minutes
 let newsCache = { items: [], fetchedAt: 0 };
 let healthCache = { items: [], fetchedAt: 0 };
+let hospitalityCache = { items: [], fetchedAt: 0 };
 
 // Aggregate any list of feeds into a single, date-sorted item list.
 async function fetchFeeds(feeds) {
@@ -389,6 +402,7 @@ function feedEndpoint(feeds, getCache, setCache) {
 
 app.get('/api/news', feedEndpoint(FEEDS, () => newsCache, c => { newsCache = c; }));
 app.get('/api/health-news', feedEndpoint(HEALTH_FEEDS, () => healthCache, c => { healthCache = c; }));
+app.get('/api/hospitality-news', feedEndpoint(HOSPITALITY_FEEDS, () => hospitalityCache, c => { hospitalityCache = c; }));
 
 // ---------- Q&A ----------
 app.get('/api/questions', (req, res) => {
