@@ -34,7 +34,8 @@
       <a href="#forums" data-nav="forums">Forums</a>
       <a href="#news" data-nav="news">Tech News</a>
       <a href="#health" data-nav="health">Health</a>
-      <a href="#advertise" data-nav="advertise" class="cta-link">Advertise</a>
+      <!-- Advertise link hidden (kept for future use); remove the "hidden" class to re-enable. -->
+      <a href="#advertise" data-nav="advertise" class="cta-link hidden">Advertise</a>
       <button class="theme-toggle" id="theme-toggle" type="button" aria-label="Toggle dark / light theme" title="Toggle theme">
         <span class="icon-moon" aria-hidden="true">🌙</span><span class="icon-sun" aria-hidden="true">☀️</span>
       </button>
@@ -393,8 +394,11 @@
 
 <footer class="footer">
   <div class="container footer-inner">
-    <p>© 2026 CodeBlazeFeed 🔥 — Built by developers, for developers. <a href="#advertise" data-nav="advertise">Advertise with us</a></p>
+    <p>© 2026 CodeBlazeFeed 🔥 — Built by developers, for developers. <a href="#advertise" data-nav="advertise" class="hidden">Advertise with us</a></p>
     <p class="footer-visits">👁 <b id="visit-count">–</b> total visitors</p>
+  </div>
+  <div class="container">
+    <p class="footer-note">This website is prepared for personal study and research. The file is not to be copied or reposted for promotion of any website or individuals or for commercial purpose without permission. Please help to maintain respect for author.</p>
   </div>
 </footer>
 
