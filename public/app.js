@@ -838,7 +838,7 @@ async function loadVisits() {
     cache[url] = { t: Date.now(), data };
     return data;
   }
-  const greeting = () => { const h = new Date().getHours(); return h < 12 ? 'Good morning, sir.' : h < 18 ? 'Good afternoon, sir.' : 'Good evening, sir.'; };
+  const greeting = () => { const h = new Date().getHours(); return h < 12 ? 'Good morning.' : h < 18 ? 'Good afternoon.' : 'Good evening.'; };
   const topCats = (items, fn) => { const m = {}; items.forEach(i => { const c = fn(i); m[c] = (m[c] || 0) + 1; }); return Object.entries(m).sort((a, b) => b[1] - a[1]); };
   const li = i => `<li><a href="${esc(i.link)}" target="_blank" rel="noopener">${esc(i.title)}</a> <span class="muted">— ${esc(i.source)}</span></li>`;
 
@@ -847,7 +847,7 @@ async function loadVisits() {
   async function run(statusText, worker, errMsg) {
     const t = thinking(); status(statusText); orb.classList.add('jarvis-working');
     try { const r = await worker(); t.remove(); say(r.html, r.spoken); }
-    catch (e) { t.remove(); say(errMsg || 'I could not complete that, sir.'); }
+    catch (e) { t.remove(); say(errMsg || 'I could not complete that.'); }
     finally { status('At your service.'); orb.classList.remove('jarvis-working'); }
   }
 
@@ -865,56 +865,56 @@ async function loadVisits() {
       + `<b>💬 Community</b> — top question: "${esc(topQ ? topQ.title : '—')}" (${topQ ? topQ.votes : 0} votes)<br>`
       + `<span class="muted">Try “read in detail”, “health”, or “trending”.</span>`;
     return { html, spoken };
-  }, 'I could not reach the feeds, sir.');
+  }, 'I could not reach the feeds.');
 
   const newsTop = () => run('Fetching headlines…', async () => {
     const d = await jFetch('/api/news'); const it = (d.items || []).slice(0, 6);
-    return { html: `Top technology headlines, sir:<ul>${it.map(li).join('')}</ul>`, spoken: `The top headline is: ${(it[0] || {}).title || 'unavailable'}.` };
-  }, 'The feeds are unreachable, sir.');
+    return { html: `Top technology headlines:<ul>${it.map(li).join('')}</ul>`, spoken: `The top headline is: ${(it[0] || {}).title || 'unavailable'}.` };
+  }, 'The feeds are unreachable.');
 
   const healthTop = () => run('Fetching health…', async () => {
     const d = await jFetch('/api/health-news'); const it = (d.items || []).slice(0, 6);
-    return { html: `Top health headlines, sir:<ul>${it.map(li).join('')}</ul>`, spoken: `The leading health story: ${(it[0] || {}).title || 'unavailable'}.` };
-  }, 'The health feeds are unreachable, sir.');
+    return { html: `Top health headlines:<ul>${it.map(li).join('')}</ul>`, spoken: `The leading health story: ${(it[0] || {}).title || 'unavailable'}.` };
+  }, 'The health feeds are unreachable.');
 
   const readDetails = () => run('Reading the top stories…', async () => {
     const d = await jFetch('/api/news'); const it = (d.items || []).slice(0, 3);
-    const html = `In detail, sir:<ul>${it.map(i => `<li><a href="${esc(i.link)}" target="_blank" rel="noopener">${esc(i.title)}</a><br><span class="muted">${esc((i.snippet || '').slice(0, 170)) || 'No summary available.'}</span></li>`).join('')}</ul>`;
-    const spoken = it.map((i, n) => `Story ${n + 1}: ${i.title}. ${(i.snippet || '').slice(0, 140)}`).join(' ') || 'No stories available, sir.';
+    const html = `In detail:<ul>${it.map(i => `<li><a href="${esc(i.link)}" target="_blank" rel="noopener">${esc(i.title)}</a><br><span class="muted">${esc((i.snippet || '').slice(0, 170)) || 'No summary available.'}</span></li>`).join('')}</ul>`;
+    const spoken = it.map((i, n) => `Story ${n + 1}: ${i.title}. ${(i.snippet || '').slice(0, 140)}`).join(' ') || 'No stories available.';
     return { html, spoken };
-  }, 'The feeds are unreachable, sir.');
+  }, 'The feeds are unreachable.');
 
   const trending = () => run('Checking the community…', async () => {
     const qs = await jFetch('/api/questions'); const top = (qs || []).slice().sort((a, b) => b.votes - a.votes).slice(0, 5);
-    return { html: `The most upvoted questions, sir:<ul>${top.map(q => `<li>${esc(q.title)} <span class="muted">▲ ${q.votes}</span></li>`).join('')}</ul>`, spoken: `The top question: ${(top[0] || {}).title || 'none yet'}.` };
-  }, 'I could not reach the Q&A, sir.');
+    return { html: `The most upvoted questions:<ul>${top.map(q => `<li>${esc(q.title)} <span class="muted">▲ ${q.votes}</span></li>`).join('')}</ul>`, spoken: `The top question: ${(top[0] || {}).title || 'none yet'}.` };
+  }, 'I could not reach the Q&A.');
 
   const forumsTop = () => run('Checking the forums…', async () => {
     const ts = await jFetch('/api/forums'); const top = (ts || []).slice().sort((a, b) => b.views - a.views).slice(0, 5);
-    return { html: `The busiest forum threads, sir:<ul>${top.map(t => `<li>${esc(t.title)} <span class="muted">👁 ${t.views}</span></li>`).join('')}</ul>`, spoken: `The most viewed thread: ${(top[0] || {}).title || 'none'}.` };
-  }, 'I could not reach the forums, sir.');
+    return { html: `The busiest forum threads:<ul>${top.map(t => `<li>${esc(t.title)} <span class="muted">👁 ${t.views}</span></li>`).join('')}</ul>`, spoken: `The most viewed thread: ${(top[0] || {}).title || 'none'}.` };
+  }, 'I could not reach the forums.');
 
   const languagesInfo = () => run('Reviewing the languages…', async () => {
     const langs = await jFetch('/api/languages'); const names = (langs || []).map(l => l.name);
-    return { html: `We cover <b>${names.length}</b> languages, sir:<br>${names.map(n => `<span class="jtag">${esc(n)}</span>`).join(' ')}`, spoken: `We cover ${names.length} languages, including ${names.slice(0, 5).join(', ')}.` };
-  }, 'I could not load the languages, sir.');
+    return { html: `We cover <b>${names.length}</b> languages:<br>${names.map(n => `<span class="jtag">${esc(n)}</span>`).join(' ')}`, spoken: `We cover ${names.length} languages, including ${names.slice(0, 5).join(', ')}.` };
+  }, 'I could not load the languages.');
 
   const search = (q) => run('Searching the feeds…', async () => {
     const [news, health] = await Promise.all([jFetch('/api/news'), jFetch('/api/health-news')]);
     const all = (news.items || []).concat(health.items || []);
     const ql = q.toLowerCase();
     const hits = all.filter(i => (i.title + ' ' + (i.snippet || '')).toLowerCase().includes(ql)).slice(0, 6);
-    if (hits.length) return { html: `Here's what I found on "${esc(q)}", sir:<ul>${hits.map(li).join('')}</ul>`, spoken: `I found ${hits.length} stories on ${q}.` };
-    return { html: `I found nothing on "${esc(q)}" in today's feeds, sir. Try “brief me”, “top news”, “health”, or “trending”.`, spoken: `I found nothing on ${q}, sir.` };
-  }, 'The search failed, sir.');
+    if (hits.length) return { html: `Here's what I found on "${esc(q)}":<ul>${hits.map(li).join('')}</ul>`, spoken: `I found ${hits.length} stories on ${q}.` };
+    return { html: `I found nothing on "${esc(q)}" in today's feeds. Try “brief me”, “top news”, “health”, or “trending”.`, spoken: `I found nothing on ${q}.` };
+  }, 'The search failed.');
 
-  function stopSpeaking() { try { speechSynthesis.cancel(); } catch (e) {} orb.classList.remove('jarvis-speaking'); add('bot', 'Silenced, sir.'); }
+  function stopSpeaking() { try { speechSynthesis.cancel(); } catch (e) {} orb.classList.remove('jarvis-speaking'); add('bot', 'Silenced.'); }
 
   // ---------- FAQ & solutions knowledge base ----------
   const FAQS = [
     { q: 'What is CodeBlazeFeed?',
       k: ['what is', 'about', 'codeblaze', 'this site', 'this website', 'purpose', 'who are you site'],
-      a: `CodeBlazeFeed is a programming hub, sir — tips &amp; tricks for <b>21 languages</b>, community Q&amp;A, developer forums, and live <b>Tech</b>, <b>Health</b> &amp; <b>Hospitality</b> news, plus an Advertise desk.`,
+      a: `CodeBlazeFeed is a programming hub — tips &amp; tricks for <b>21 languages</b>, community Q&amp;A, developer forums, and live <b>Tech</b>, <b>Health</b> &amp; <b>Hospitality</b> news, plus an Advertise desk.`,
       s: `CodeBlazeFeed is a programming hub with language guides, Q and A, forums, and live news feeds.` },
     { q: 'How do I book an advertisement?',
       k: ['advertise', 'advertis', 'book an ad', 'booking', 'campaign', 'sponsor', 'promote', 'run an ad', 'place an ad', 'ad package'],
@@ -930,11 +930,11 @@ async function loadVisits() {
       s: `Use the search bar at the top of every page, or press the slash key. It searches everything at once.` },
     { q: 'How many languages do you cover, and where are the tips?',
       k: ['language', 'languages', 'tips', 'cheat sheet', 'snippet', 'deep link', 'resources'],
-      a: `We cover <b>21 languages</b>, sir — open <b>Languages</b> and click any card for its tips &amp; tricks, a signature snippet, and curated <b>deep links</b> (official docs, tutorials, playgrounds).`,
+      a: `We cover <b>21 languages</b> — open <b>Languages</b> and click any card for its tips &amp; tricks, a signature snippet, and curated <b>deep links</b> (official docs, tutorials, playgrounds).`,
       s: `We cover 21 languages. Open Languages and click any card for tips, a snippet, and deep links.` },
     { q: 'Where is the Electronics & Communication content?',
       k: ['electronics', 'communication', 'ece', 'embedded', 'verilog', 'vhdl', 'semiconductor', 'signal', 'matlab'],
-      a: `Two places, sir: <b>Tech News → Electronics &amp; Comm</b> category (EE Times, IEEE Spectrum, EDN, Semiconductor Engineering), and the <b>Languages</b> page which now includes C-embedded, Assembly, Verilog, VHDL, SystemVerilog, MATLAB, Tcl and Perl.`,
+      a: `Two places: <b>Tech News → Electronics &amp; Comm</b> category (EE Times, IEEE Spectrum, EDN, Semiconductor Engineering), and the <b>Languages</b> page which now includes C-embedded, Assembly, Verilog, VHDL, SystemVerilog, MATLAB, Tcl and Perl.`,
       s: `In Tech News under the Electronics and Comm category, and in Languages, which now includes Verilog, VHDL, MATLAB and more.` },
     { q: 'How do I ask a question?',
       k: ['ask a question', 'post a question', 'q&a', 'q and a', 'stack exchange', 'stack overflow', 'ask'],
@@ -966,8 +966,8 @@ async function loadVisits() {
       s: `Ask me for a brief, top news, health, trending, forums, or languages. Or tap FAQ for common questions.` }
   ];
   function faqList() {
-    say(`Frequently asked questions, sir — tap one, or just ask:<ul class="jfaq">${FAQS.map((f, i) => `<li><a href="#" data-faq="${i}">${esc(f.q)}</a></li>`).join('')}</ul>`,
-      `Here are the questions I can answer, sir. For example: ${FAQS[0].q}, or, ${FAQS[1].q}`);
+    say(`Frequently asked questions — tap one, or just ask:<ul class="jfaq">${FAQS.map((f, i) => `<li><a href="#" data-faq="${i}">${esc(f.q)}</a></li>`).join('')}</ul>`,
+      `Here are the questions I can answer. For example: ${FAQS[0].q}, or, ${FAQS[1].q}`);
   }
   function answerFaq(f) { say(`<b>${esc(f.q)}</b><br>${f.a}<br><span class="muted">Ask <b>FAQ</b> for more.</span>`, f.s); }
   function findFaq(t) {
@@ -988,7 +988,7 @@ async function loadVisits() {
   });
 
   function help() {
-    say(`At your command, sir. I can:<ul><li><b>brief me</b> — a full rundown</li><li><b>top news</b> / <b>health</b> — latest headlines</li><li><b>read in detail</b> — top stories with summaries</li><li><b>trending</b> — hottest questions · <b>forums</b> — busiest threads</li><li><b>languages</b> — what we cover</li><li><b>FAQ</b> — common questions &amp; fixes</li><li>ask about a topic (<i>“anything on AI?”</i>) or say <b>stop</b> to silence me</li></ul>`, 'I can brief you, read stories in detail, report on news, health, trending questions, forums, and languages, and answer common questions in the FAQ, sir.');
+    say(`At your command. I can:<ul><li><b>brief me</b> — a full rundown</li><li><b>top news</b> / <b>health</b> — latest headlines</li><li><b>read in detail</b> — top stories with summaries</li><li><b>trending</b> — hottest questions · <b>forums</b> — busiest threads</li><li><b>languages</b> — what we cover</li><li><b>FAQ</b> — common questions &amp; fixes</li><li>ask about a topic (<i>“anything on AI?”</i>) or say <b>stop</b> to silence me</li></ul>`, 'I can brief you, read stories in detail, report on news, health, trending questions, forums, and languages, and answer common questions in the FAQ.');
   }
 
   function route(raw) {
