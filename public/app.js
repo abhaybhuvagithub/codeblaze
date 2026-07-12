@@ -910,8 +910,85 @@ async function loadVisits() {
 
   function stopSpeaking() { try { speechSynthesis.cancel(); } catch (e) {} orb.classList.remove('jarvis-speaking'); add('bot', 'Silenced, sir.'); }
 
+  // ---------- FAQ & solutions knowledge base ----------
+  const FAQS = [
+    { q: 'What is CodeBlazeFeed?',
+      k: ['what is', 'about', 'codeblaze', 'this site', 'this website', 'purpose', 'who are you site'],
+      a: `CodeBlazeFeed is a programming hub, sir — tips &amp; tricks for <b>21 languages</b>, community Q&amp;A, developer forums, and live <b>Tech</b>, <b>Health</b> &amp; <b>Hospitality</b> news, plus an Advertise desk.`,
+      s: `CodeBlazeFeed is a programming hub with language guides, Q and A, forums, and live news feeds.` },
+    { q: 'How do I book an advertisement?',
+      k: ['advertise', 'advertis', 'book an ad', 'booking', 'campaign', 'sponsor', 'promote', 'run an ad', 'place an ad', 'ad package'],
+      a: `Open <b>Advertise With Us</b> and chat with <b>Blaze</b>, our booking assistant. Packages run from <b>$49</b> (text link) to <b>$999</b> (full takeover) — tell Blaze your goal and budget and it recommends the best fit, then books it.`,
+      s: `Open Advertise with us and chat with Blaze. Packages run from 49 to 999 dollars, and Blaze books the best fit for your budget.` },
+    { q: 'How do I switch between dark and light theme?',
+      k: ['theme', 'dark mode', 'light mode', 'dark', 'light', 'colour', 'color scheme'],
+      a: `Use the <b>🌙 / ☀️</b> toggle at the top-right of the page. Your choice is remembered, and it follows your device preference until you pick one.`,
+      s: `Use the sun and moon toggle at the top right. Your choice is remembered.` },
+    { q: 'How do I search the site?',
+      k: ['search', 'find something', 'search bar', 'look for', 'how to search'],
+      a: `Use the <b>search bar</b> at the top of every page — or press <b>/</b> (or <b>⌘K</b> / Ctrl+K) anywhere. It searches news, health, hospitality, Q&amp;A, forums, languages and resources at once. Use ↑ ↓ then ↵ to open a result.`,
+      s: `Use the search bar at the top of every page, or press the slash key. It searches everything at once.` },
+    { q: 'How many languages do you cover, and where are the tips?',
+      k: ['language', 'languages', 'tips', 'cheat sheet', 'snippet', 'deep link', 'resources'],
+      a: `We cover <b>21 languages</b>, sir — open <b>Languages</b> and click any card for its tips &amp; tricks, a signature snippet, and curated <b>deep links</b> (official docs, tutorials, playgrounds).`,
+      s: `We cover 21 languages. Open Languages and click any card for tips, a snippet, and deep links.` },
+    { q: 'Where is the Electronics & Communication content?',
+      k: ['electronics', 'communication', 'ece', 'embedded', 'verilog', 'vhdl', 'semiconductor', 'signal', 'matlab'],
+      a: `Two places, sir: <b>Tech News → Electronics &amp; Comm</b> category (EE Times, IEEE Spectrum, EDN, Semiconductor Engineering), and the <b>Languages</b> page which now includes C-embedded, Assembly, Verilog, VHDL, SystemVerilog, MATLAB, Tcl and Perl.`,
+      s: `In Tech News under the Electronics and Comm category, and in Languages, which now includes Verilog, VHDL, MATLAB and more.` },
+    { q: 'How do I ask a question?',
+      k: ['ask a question', 'post a question', 'q&a', 'q and a', 'stack exchange', 'stack overflow', 'ask'],
+      a: `Open <b>Q&amp;A</b> → <b>Ask Question</b> to post to the community. The <b>Stack Exchange · Live</b> tab also pulls real answers from Stack Overflow, Super User, Server Fault, Ask Ubuntu and more.`,
+      s: `Open Q and A and tap Ask Question. The Stack Exchange live tab also searches Stack Overflow and its sister sites.` },
+    { q: 'Where are Health and Hospitality news?',
+      k: ['health', 'hospitality', 'medical', 'hotel', 'travel', 'wellness'],
+      a: `They have their own menus: <b>Health</b> (ScienceDaily, WHO, NPR, Mayo Clinic and more) and <b>Hospitality</b> (Skift, PhocusWire, Hotel Management and more), each grouped by topic with live feeds.`,
+      s: `They each have their own menu — Health and Hospitality — with live feeds grouped by topic.` },
+    { q: 'I booked an ad but did not receive an email',
+      k: ['did not get', 'no email', 'not receive', 'email not', 'no mail', 'booking email', 'confirmation email'],
+      a: `Booking emails need the owner to set three environment variables on the server: <code>GMAIL_USER</code>, <code>GMAIL_APP_PASSWORD</code> (a Google App Password, not your normal password) and <code>OWNER_EMAIL</code>. Until those are set, bookings still save but email is skipped. See the README for setup.`,
+      s: `Booking emails need three server settings: Gmail user, a Gmail app password, and the owner email. Until those are set, the booking is saved but no email is sent.` },
+    { q: 'The site is not showing my latest changes',
+      k: ['not showing', 'not updating', 'stale', 'cache', 'old version', 'cant see', 'cannot see', 'refresh'],
+      a: `That is browser caching. Do a hard refresh — <b>Ctrl+Shift+R</b> (Windows/Linux) or <b>Cmd+Shift+R</b> (Mac). The site now version-stamps its files on every deploy, so a normal reload should stay current.`,
+      s: `That is browser caching. Do a hard refresh with control shift R, or command shift R on Mac.` },
+    { q: 'GARUDA has no voice / voice is not working',
+      k: ['no voice', 'no sound', 'not speaking', 'voice not', 'cant hear', 'mute', 'unmute', 'audio'],
+      a: `Check the <b>🔊 / 🔇</b> button at the top of my panel — if it shows 🔇, tap it to unmute. Voice uses your browser's speech engine; Chrome and Edge work best, and an <i>en-IN</i> voice gives me my Indian accent. Say <b>stop</b> any time to silence me.`,
+      s: `Check the speaker button at the top of my panel and unmute if needed. Voice works best in Chrome or Edge.` },
+    { q: 'Can I reuse the content?',
+      k: ['reuse', 'copyright', 'copy', 'repost', 'license', 'permission', 'commercial'],
+      a: `This site is prepared for <b>personal study and research</b>. Please do not copy or repost it to promote any website, individual, or for commercial purposes without permission — kindly respect the author.`,
+      s: `The site is for personal study and research. Please do not repost it commercially without permission.` },
+    { q: 'How do I use you, GARUDA?',
+      k: ['how to use', 'use you', 'your commands', 'what can you do', 'guide me'],
+      a: `Ask me for a <b>brief</b>, <b>top news</b>, <b>health</b>, <b>trending</b> questions, <b>forums</b>, or <b>languages</b> — or ask about any topic (<i>“anything on AI?”</i>). Tap <b>FAQ</b> for common questions, or say <b>stop</b> to silence me.`,
+      s: `Ask me for a brief, top news, health, trending, forums, or languages. Or tap FAQ for common questions.` }
+  ];
+  function faqList() {
+    say(`Frequently asked questions, sir — tap one, or just ask:<ul class="jfaq">${FAQS.map((f, i) => `<li><a href="#" data-faq="${i}">${esc(f.q)}</a></li>`).join('')}</ul>`,
+      `Here are the questions I can answer, sir. For example: ${FAQS[0].q}, or, ${FAQS[1].q}`);
+  }
+  function answerFaq(f) { say(`<b>${esc(f.q)}</b><br>${f.a}<br><span class="muted">Ask <b>FAQ</b> for more.</span>`, f.s); }
+  function findFaq(t) {
+    let best = null, score = 0;
+    for (const f of FAQS) {
+      let s = 0;
+      for (const kw of f.k) if (t.includes(kw)) s += kw.length;   // longer keyword = stronger signal
+      if (s > score) { score = s; best = f; }
+    }
+    return score > 0 ? best : null;
+  }
+  // Tapping an FAQ item in the log answers it.
+  logEl.addEventListener('click', e => {
+    const a = e.target.closest('[data-faq]'); if (!a) return;
+    e.preventDefault();
+    const f = FAQS[+a.dataset.faq];
+    if (f) { add('user', esc(f.q)); answerFaq(f); }
+  });
+
   function help() {
-    say(`At your command, sir. I can:<ul><li><b>brief me</b> — a full rundown</li><li><b>top news</b> / <b>health</b> — latest headlines</li><li><b>read in detail</b> — top stories with summaries</li><li><b>trending</b> — hottest questions · <b>forums</b> — busiest threads</li><li><b>languages</b> — what we cover</li><li>ask about a topic (<i>“anything on AI?”</i>) or say <b>stop</b> to silence me</li></ul>`, 'I can brief you, read stories in detail, and report on news, health, trending questions, forums, and languages, sir.');
+    say(`At your command, sir. I can:<ul><li><b>brief me</b> — a full rundown</li><li><b>top news</b> / <b>health</b> — latest headlines</li><li><b>read in detail</b> — top stories with summaries</li><li><b>trending</b> — hottest questions · <b>forums</b> — busiest threads</li><li><b>languages</b> — what we cover</li><li><b>FAQ</b> — common questions &amp; fixes</li><li>ask about a topic (<i>“anything on AI?”</i>) or say <b>stop</b> to silence me</li></ul>`, 'I can brief you, read stories in detail, report on news, health, trending questions, forums, and languages, and answer common questions in the FAQ, sir.');
   }
 
   function route(raw) {
@@ -926,7 +1003,11 @@ async function loadVisits() {
     if (/\b(trend|question|q ?& ?a|q and a|upvot)\b/.test(t)) return trending();
     if (/\b(forum|thread|discuss)\b/.test(t)) return forumsTop();
     if (/\b(news|headline|top stor|latest)\b/.test(t)) return newsTop();
+    // FAQ: explicit list, or a keyword match on a common question / problem.
+    if (/\b(faq|faqs|frequently asked|help topics|common questions?)\b/.test(t)) { const f = findFaq(t); return f ? answerFaq(f) : faqList(); }
     if (/\b(help|what can you|commands?|who are you)\b/.test(t)) return help();
+    if (/\b(how (do|to|can)|solution|troubleshoot|problem|not working|isn'?t working|can'?t|cannot|why (is|does|won'?t))\b/.test(t)) { const f = findFaq(t); return f ? answerFaq(f) : faqList(); }
+    { const f = findFaq(t); if (f) return answerFaq(f); }   // last: match any FAQ keyword before searching feeds
     return search(q.replace(/^(any(thing)?( on| about)?|tell me about|find|search|news on|what about)\s+/i, '').replace(/[?.!]+$/, '') || q);
   }
 
@@ -940,7 +1021,7 @@ async function loadVisits() {
   muteBtn.addEventListener('click', () => { muted = !muted; muteBtn.textContent = muted ? '🔇' : '🔊'; try { localStorage.setItem('jarvis-muted', muted ? '1' : '0'); } catch (e) {} if (muted) { try { speechSynthesis.cancel(); } catch (e) {} } });
   form.addEventListener('submit', e => { e.preventDefault(); const v = textEl.value; textEl.value = ''; route(v); });
 
-  [['Brief me', 'brief me'], ['Top news', 'top news'], ['Health', 'health'], ['Trending', 'trending'], ['Forums', 'forums']].forEach(([label, cmd]) => {
+  [['Brief me', 'brief me'], ['Top news', 'top news'], ['Health', 'health'], ['Trending', 'trending'], ['Forums', 'forums'], ['FAQ', 'faq']].forEach(([label, cmd]) => {
     const b = document.createElement('button'); b.type = 'button'; b.textContent = label; b.onclick = () => route(cmd); quickEl.appendChild(b);
   });
 
