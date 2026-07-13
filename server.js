@@ -642,6 +642,9 @@ app.post('/api/ads/inquiries', async (req, res) => {
     tag: tag ? String(tag).toLowerCase().slice(0, 40) : undefined,
     duration: duration ? String(duration).slice(0, 60) : undefined,
     copy: copy ? String(copy).slice(0, 2000) : undefined,
+    link: extractLink(copy || message),
+    status: 'pending_payment',      // becomes 'active' once payment is received
+    activatedAt: null,
     validation,
     createdAt: new Date().toISOString()
   };
@@ -663,6 +666,144 @@ app.post('/api/ads/inquiries', async (req, res) => {
     emailed: emailResult.sent,
     note: `Thanks ${inquiry.company}! Your ${pkg.name} ($${pkg.price}${pkg.period}) request is in${validation.warnings.length ? ' — we flagged a couple of things below' : ''}.${emailLine}`
   });
+});
+
+// ---------- Ad lifecycle: payment & activation ----------
+// A booking is created as 'pending_payment'. It goes live ('active') either via
+// the demo "Pay now" button (simulated — no real charge) or when the owner marks
+// it paid from the key-protected /admin page. Active ads render on the site.
+const ADMIN_KEY = process.env.ADMIN_KEY || 'blaze-admin';
+const adminOk = req => (req.query.key || (req.body && req.body.key)) === ADMIN_KEY;
+function extractLink(text) {
+  const m = String(text || '').match(/https?:\/\/[^\s<>"')]+/i);
+  return m ? m[0] : null;
+}
+// Shape an inquiry for public rendering (never expose the buyer's email).
+function publicAd(i) {
+  return {
+    id: i.id, packageId: i.packageId, package: i.package,
+    company: i.company, tag: i.tag || null,
+    body: i.copy || i.message || '', link: i.link || null,
+    price: i.price, period: i.period
+  };
+}
+
+// Active (paid) ads for the site to render.
+app.get('/api/ads/active', (req, res) => {
+  res.json(adInquiries.filter(i => i.status === 'active').map(publicAd));
+});
+
+// Demo "Pay now" — simulated payment, no real money changes hands.
+app.post('/api/ads/inquiries/:id/pay', (req, res) => {
+  const inq = adInquiries.find(i => i.id === req.params.id);
+  if (!inq) return res.status(404).json({ error: 'booking not found' });
+  if (inq.status !== 'active') {
+    inq.status = 'active'; inq.paidVia = 'demo'; inq.activatedAt = new Date().toISOString();
+    save('ad_inquiries', adInquiries);
+  }
+  res.json({ ok: true, id: inq.id, status: inq.status, ad: publicAd(inq) });
+});
+
+// Owner admin: list every booking.
+app.get('/api/ads/admin/list', (req, res) => {
+  if (!adminOk(req)) return res.status(401).json({ error: 'invalid admin key' });
+  res.json(adInquiries.map(i => ({
+    id: i.id, packageId: i.packageId, package: i.package, price: i.price, period: i.period,
+    company: i.company, email: i.email, status: i.status || 'pending_payment',
+    tag: i.tag || null, body: i.copy || i.message || '', link: i.link || null,
+    paidVia: i.paidVia || null, createdAt: i.createdAt, activatedAt: i.activatedAt || null
+  })));
+});
+
+// Owner admin: set a booking's status (payment received / hold / reject).
+app.post('/api/ads/admin/set-status', (req, res) => {
+  if (!adminOk(req)) return res.status(401).json({ error: 'invalid admin key' });
+  const { id, status } = req.body || {};
+  const inq = adInquiries.find(i => i.id === id);
+  if (!inq) return res.status(404).json({ error: 'booking not found' });
+  if (!['pending_payment', 'active', 'rejected'].includes(status)) return res.status(400).json({ error: 'invalid status' });
+  inq.status = status;
+  inq.activatedAt = status === 'active' ? new Date().toISOString() : null;
+  if (status === 'active' && !inq.paidVia) inq.paidVia = 'owner';
+  save('ad_inquiries', adInquiries);
+  res.json({ ok: true, id, status });
+});
+
+// Owner admin page (key-protected in the browser via ?key=...).
+const ADMIN_PAGE = `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CodeBlazeFeed — Ad Admin</title>
+<style>
+  :root{--gold:#b07d10;--ink:#2a1e04;}
+  *{box-sizing:border-box}
+  body{font-family:'Segoe UI',system-ui,sans-serif;margin:0;background:#f7f4fb;color:#241a33;padding:24px}
+  h1{margin:0 0 4px;font-size:1.4rem}.sub{color:#6f6790;margin:0 0 18px;font-size:.9rem}
+  .keybar{display:flex;gap:8px;margin-bottom:18px;flex-wrap:wrap}
+  .keybar input{padding:9px 12px;border:1px solid #d9d2ea;border-radius:8px;min-width:220px}
+  .keybar button{padding:9px 16px;border:none;border-radius:8px;background:#5200FF;color:#fff;font-weight:700;cursor:pointer}
+  table{width:100%;border-collapse:collapse;background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 6px 24px rgba(90,64,0,.08)}
+  th,td{text-align:left;padding:11px 13px;border-bottom:1px solid #eee;font-size:.88rem;vertical-align:top}
+  th{background:#faf7ff;font-size:.72rem;text-transform:uppercase;letter-spacing:.05em;color:#6f6790}
+  .badge{display:inline-block;padding:2px 9px;border-radius:999px;font-size:.72rem;font-weight:700}
+  .s-active{background:#e5f7ec;color:#1a7d43}.s-pending_payment{background:#fff3cf;color:#7a5606}.s-rejected{background:#fde8e8;color:#b23}
+  .acts button{margin:2px 3px 0 0;padding:6px 10px;border:1px solid #d9d2ea;border-radius:7px;background:#fff;cursor:pointer;font-size:.78rem;font-weight:600}
+  .acts .go{border-color:#1a7d43;color:#1a7d43}.acts .hold{border-color:#7a5606;color:#7a5606}.acts .rej{border-color:#b23;color:#b23}
+  .msg{margin:10px 0;color:#6f6790;font-size:.9rem}
+  code{background:#f0ebfb;padding:1px 5px;border-radius:4px}
+</style></head><body>
+<h1>🔥 Ad Bookings — Admin</h1>
+<p class="sub">Mark a booking <b>Paid</b> once you've received payment; it goes live on the site immediately.</p>
+<div class="keybar">
+  <input id="key" type="password" placeholder="Admin key" />
+  <button onclick="load()">Load bookings</button>
+</div>
+<div class="msg" id="msg">Enter your admin key and load bookings.</div>
+<table id="tbl" style="display:none"><thead><tr>
+  <th>Company</th><th>Package</th><th>Status</th><th>Creative</th><th>Booked</th><th>Actions</th>
+</tr></thead><tbody id="rows"></tbody></table>
+<script>
+  const qp = new URLSearchParams(location.search);
+  if (qp.get('key')) document.getElementById('key').value = qp.get('key');
+  const esc = s => String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  async function load(){
+    const key = document.getElementById('key').value.trim();
+    const msg = document.getElementById('msg');
+    if(!key){ msg.textContent='Enter your admin key.'; return; }
+    msg.textContent='Loading…';
+    try{
+      const r = await fetch('/api/ads/admin/list?key='+encodeURIComponent(key));
+      if(!r.ok){ msg.textContent = r.status===401 ? 'Invalid admin key.' : 'Error '+r.status; return; }
+      const list = await r.json();
+      window._key = key;
+      const rows = document.getElementById('rows');
+      if(!list.length){ msg.textContent='No bookings yet.'; document.getElementById('tbl').style.display='none'; return; }
+      msg.textContent = list.length+' booking(s).';
+      document.getElementById('tbl').style.display='';
+      rows.innerHTML = list.slice().reverse().map(function(i){
+        const link = i.link ? '<br><a href="'+esc(i.link)+'" target="_blank" rel="noopener">'+esc(i.link)+'</a>' : '';
+        return '<tr>'
+          +'<td><b>'+esc(i.company)+'</b><br><span style="color:#6f6790">'+esc(i.email)+'</span></td>'
+          +'<td>'+esc(i.package)+'<br><span style="color:#6f6790">$'+i.price+esc(i.period)+'</span></td>'
+          +'<td><span class="badge s-'+esc(i.status)+'">'+esc(i.status.replace('_',' '))+'</span></td>'
+          +'<td style="max-width:280px">'+esc(i.body||'—')+link+'</td>'
+          +'<td style="color:#6f6790">'+esc(new Date(i.createdAt).toLocaleString())+'</td>'
+          +'<td class="acts">'
+            +'<button class="go" onclick="setStatus(\\''+i.id+'\\',\\'active\\')">Mark Paid ✓</button>'
+            +'<button class="hold" onclick="setStatus(\\''+i.id+'\\',\\'pending_payment\\')">Pending</button>'
+            +'<button class="rej" onclick="setStatus(\\''+i.id+'\\',\\'rejected\\')">Reject</button>'
+          +'</td></tr>';
+      }).join('');
+    }catch(e){ msg.textContent='Failed: '+e.message; }
+  }
+  async function setStatus(id,status){
+    const r = await fetch('/api/ads/admin/set-status',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id:id,status:status,key:window._key})});
+    if(r.ok){ load(); } else { alert('Failed ('+r.status+')'); }
+  }
+  if (qp.get('key')) load();
+</script></body></html>`;
+app.get('/admin', (req, res) => {
+  res.set('Cache-Control', 'no-cache');
+  res.type('html').send(ADMIN_PAGE);
 });
 
 // ---------- Languages knowledge ----------
@@ -824,6 +965,7 @@ app.post('/partials/ads/inquiries', async (req, res) => {
     id: uid(), packageId, package: pkg.name, price: pkg.price, period: pkg.period,
     company: String(company).slice(0, 100), email: String(email).slice(0, 100),
     message: String(message || '').slice(0, 2000), copy: message ? String(message).slice(0, 2000) : undefined,
+    link: extractLink(message), status: 'pending_payment', activatedAt: null,
     validation, createdAt: new Date().toISOString()
   };
   adInquiries.push(inquiry); save('ad_inquiries', adInquiries);

@@ -114,7 +114,7 @@ function closeMobileNav() {
   });
 })();
 
-const state = { languages: [], questions: [], news: [], newsLoaded: false, newsFilter: '', newsCategory: '', health: [], healthLoaded: false, healthFilter: '', healthCategory: '', hospitality: [], hospitalityLoaded: false, hospitalityFilter: '', adPkg: null };
+const state = { languages: [], questions: [], news: [], newsLoaded: false, newsFilter: '', newsCategory: '', health: [], healthLoaded: false, healthFilter: '', healthCategory: '', hospitality: [], hospitalityLoaded: false, hospitalityFilter: '', adPkg: null, activeAds: [] };
 
 // ---------- Languages ----------
 async function loadLanguages() {
@@ -749,12 +749,33 @@ async function aaBook(copy) {
       AA.stage = 'copy-fix';
       await aaBot("Want to paste a revised version, or type <strong>book anyway</strong> to keep it as-is?", 300);
     } else {
-      AA.stage = 'done';
-      aaQuick([{ label: 'Plan another campaign', onClick: () => { AA.started = false; AA.pkg = null; AA.brief = { goals: [], goalLabel: '', budget: null, tag: null, duration: null, text: '' }; AA.booking = { company: '', email: '', copy: '' }; aaStart(); } }]);
+      AA.stage = 'payment';
+      AA.bookingId = r.id;
+      await aaBot(`Your booking is reserved as <strong>pending payment</strong>. Complete the (demo) payment of <strong>$${AA.pkg.price}${AA.pkg.period}</strong> to take your ad <strong>live on the site</strong> right now.`, 350);
+      aaQuick([
+        { label: `Pay $${AA.pkg.price} now (demo)`, onClick: () => aaPay(r.id) },
+        { label: 'Pay later', onClick: () => { aaAdd('user', 'Pay later'); aaBot('No problem — your booking is saved as pending. It goes live once payment is received (you or the owner can complete it later). Anything else?', 200); aaDoneQuick(); } }
+      ]);
     }
   } catch (e) {
     t.innerHTML = '❌ ' + esc(e.message);
   }
+}
+// Demo payment — simulated, no real charge. Activates the ad and renders it live.
+async function aaPay(id) {
+  aaAdd('user', 'Pay now');
+  const t = aaTyping();
+  try {
+    await api('/api/ads/inquiries/' + id + '/pay', { method: 'POST', body: '{}' });
+    t.innerHTML = `💳 Payment received <span class="muted">(simulated)</span> — <strong>your ${esc(AA.pkg.name)} ad is now live on the site!</strong> You'll see it in its placement.`;
+    aaScroll();
+    if (typeof loadActiveAds === 'function') loadActiveAds();   // refresh live placements immediately
+    AA.stage = 'done';
+    aaDoneQuick();
+  } catch (e) { t.innerHTML = '❌ ' + esc(e.message); }
+}
+function aaDoneQuick() {
+  aaQuick([{ label: 'Plan another campaign', onClick: () => { AA.started = false; AA.pkg = null; AA.brief = { goals: [], goalLabel: '', budget: null, tag: null, duration: null, text: '' }; AA.booking = { company: '', email: '', copy: '' }; aaStart(); } }]);
 }
 
 // Wire the assistant form + restart button.
@@ -805,10 +826,63 @@ async function loadVisits() {
 }
 
 // ---------- Init ----------
+// ---------- Live (paid) ad placements ----------
+// Each booked-and-paid ad renders in the placement its package pays for.
+const AD_PLACEMENTS = {
+  'text-link':   ['rail', 'footer'],
+  'sidebar':     ['rail'],
+  'newsletter':  ['footer'],
+  'qa-sponsor':  ['qa'],
+  'forum-pin':   ['forums'],
+  'news-slot':   ['news'],
+  'home-banner': ['homebanner'],
+  'article':     ['homebanner'],
+  'takeover':    ['homebanner', 'rail', 'news', 'qa', 'forums', 'footer']  // buys every slot
+};
+// zone id -> [zoneKey, render variant]
+const AD_ZONES = {
+  'ad-zone-homebanner': ['homebanner', 'banner'],
+  'ad-zone-rail':       ['rail', 'text'],
+  'ad-zone-news':       ['news', 'banner'],
+  'ad-zone-qa':         ['qa', 'banner'],
+  'ad-zone-forums':     ['forums', 'banner'],
+  'ad-zone-footer':     ['footer', 'text']
+};
+function adUnit(a, variant) {
+  const link = a.link || '#';
+  const ext = a.link ? ' target="_blank" rel="noopener"' : '';
+  const body = esc((a.body || '').replace(/https?:\/\/\S+/g, '').trim().slice(0, 140) || 'Learn more');
+  if (variant === 'text') {
+    return `<a class="sponsor-text" href="${esc(link)}"${ext}><span class="sponsor-tag">Ad</span><b>${esc(a.company)}</b> — ${body} <span class="arr">→</span></a>`;
+  }
+  return `<a class="sponsor-ad" href="${esc(link)}"${ext}>
+      <span class="sponsor-label">Sponsored</span>
+      <div class="sponsor-main"><b>${esc(a.company)}</b><span>${body}</span></div>
+      <span class="sponsor-cta">Learn more →</span>
+    </a>`;
+}
+function renderAds() {
+  const ads = state.activeAds || [];
+  const byZone = { homebanner: [], rail: [], news: [], qa: [], forums: [], footer: [] };
+  ads.forEach(a => (AD_PLACEMENTS[a.packageId] || []).forEach(z => byZone[z] && byZone[z].push(a)));
+  Object.entries(AD_ZONES).forEach(([id, [zone, variant]]) => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    const list = byZone[zone] || [];
+    el.innerHTML = list.map(a => adUnit(a, variant)).join('');
+    el.classList.toggle('hidden', !list.length);
+  });
+}
+async function loadActiveAds() {
+  try { state.activeAds = await api('/api/ads/active'); } catch (e) { state.activeAds = []; }
+  renderAds();
+}
+
 (async function init() {
   loadVisits();
   await Promise.all([loadLanguages(), loadStats(), loadAds()]);
   loadTrending();
+  loadActiveAds();
   loadNews(); // background, also fills home preview
 })();
 

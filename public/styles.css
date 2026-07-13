@@ -698,3 +698,39 @@ a:focus:not(:focus-visible), button:focus:not(:focus-visible), input:focus:not(:
 .jmsg .jfaq li { margin: 0 0 6px; }
 .jmsg .jfaq li a { display: block; padding: 7px 11px; border: 1px solid var(--jarvis, #ffce45); border-radius: 8px; color: #3a2c08; font-size: .86rem; font-weight: 600; background: #fff8e6; }
 .jmsg .jfaq li a:hover { background: var(--jarvis); color: #2a1e04; text-decoration: none; }
+
+/* ---------- Live sponsored ad placements ---------- */
+.ad-zone { margin: 0 0 18px; }
+.ad-zone-banner { display: grid; gap: 12px; }
+.ad-zone.hidden { display: none !important; }
+/* Banner-style sponsor unit */
+.sponsor-ad {
+  position: relative; display: flex; align-items: center; gap: 16px;
+  background: linear-gradient(100deg, rgba(82,0,255,.10), rgba(249,0,255,.08));
+  border: 1px solid var(--violet); border-radius: 14px; padding: 16px 18px; color: var(--ink);
+  transition: transform .15s, box-shadow .15s;
+}
+.sponsor-ad:hover { transform: translateY(-2px); box-shadow: 0 8px 26px rgba(82,0,255,.28); text-decoration: none; }
+.sponsor-label {
+  position: absolute; top: 10px; right: 12px; font-size: .6rem; font-weight: 800; letter-spacing: .08em;
+  text-transform: uppercase; color: #fff; background: var(--violet); padding: 2px 8px; border-radius: 999px;
+}
+.sponsor-main { display: flex; flex-direction: column; gap: 3px; flex: 1; min-width: 0; padding-right: 70px; }
+.sponsor-main b { font-size: 1.05rem; font-weight: 800; color: var(--ink); }
+.sponsor-main span { font-size: .9rem; color: var(--body); }
+.sponsor-cta { flex: 0 0 auto; font-weight: 800; font-size: .85rem; color: var(--magenta); white-space: nowrap; }
+/* Compact text sponsor unit (rail / footer) */
+.sponsor-text {
+  display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap;
+  padding: 10px 12px; margin-bottom: 10px; border: 1px dashed var(--violet); border-radius: 10px;
+  background: var(--nav-hover); color: var(--body); font-size: .86rem;
+}
+.sponsor-text:hover { text-decoration: none; border-style: solid; color: var(--ink); }
+.sponsor-text b { color: var(--ink); }
+.sponsor-tag { font-size: .58rem; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; color: #fff; background: var(--violet); padding: 2px 6px; border-radius: 4px; }
+.sponsor-text .arr { margin-left: auto; color: var(--magenta); font-weight: 800; }
+#ad-zone-footer { max-width: 640px; margin: 0 auto 8px; }
+@media (max-width: 600px) {
+  .sponsor-ad { flex-direction: column; align-items: flex-start; gap: 8px; }
+  .sponsor-main { padding-right: 0; }
+}
