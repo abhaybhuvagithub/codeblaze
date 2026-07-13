@@ -976,6 +976,11 @@ app.post('/partials/ads/inquiries', async (req, res) => {
   sendHtml(res, out);
 });
 
+// SEO: robots.txt
+app.get('/robots.txt', (req, res) => {
+  res.type('text/plain').send('User-agent: *\nAllow: /\n');
+});
+
 // SPA fallback
 app.get('*', (req, res) => res.sendFile(path.join(__dirname, 'public', 'index.html')));
 
