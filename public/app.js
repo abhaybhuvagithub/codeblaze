@@ -45,6 +45,8 @@ function nav(view) {
   $$('.view').forEach(v => v.classList.add('hidden'));
   $('#view-' + view).classList.remove('hidden');
   $$('.nav a').forEach(a => a.classList.toggle('active', a.dataset.nav === view));
+  // Highlight the dropdown group that contains the active page.
+  $$('.nav-group').forEach(g => g.classList.toggle('has-active', !!g.querySelector('a.active')));
   window.scrollTo({ top: 0 });
   if (view === 'news' && !state.newsLoaded) loadNews();
   if (view === 'health' && !state.healthLoaded) loadHealth();
@@ -53,8 +55,43 @@ function nav(view) {
 }
 document.addEventListener('click', e => {
   const t = e.target.closest('[data-nav]');
-  if (t) { e.preventDefault(); nav(t.dataset.nav); closeMobileNav(); }
+  if (t) { e.preventDefault(); nav(t.dataset.nav); closeMobileNav(); closeNavGroups(); }
 });
+
+// ---------- Header dropdown groups ----------
+function closeNavGroups() {
+  $$('.nav-group.open').forEach(g => {
+    g.classList.remove('open');
+    const b = g.querySelector('.nav-group-btn');
+    if (b) b.setAttribute('aria-expanded', 'false');
+  });
+}
+(function initNavGroups() {
+  const groups = $$('.nav-group');
+  if (!groups.length) return;
+  groups.forEach(g => {
+    const btn = g.querySelector('.nav-group-btn');
+    if (!btn) return;
+    btn.addEventListener('click', e => {
+      // On desktop, toggle the dropdown; on the mobile drawer the menus are always shown.
+      if (window.matchMedia('(max-width: 900px)').matches) return;
+      e.stopPropagation();
+      const willOpen = !g.classList.contains('open');
+      closeNavGroups();
+      g.classList.toggle('open', willOpen);
+      btn.setAttribute('aria-expanded', String(willOpen));
+    });
+  });
+  // Click outside closes any open dropdown.
+  document.addEventListener('click', e => { if (!e.target.closest('.nav-group')) closeNavGroups(); });
+  // Escape closes and returns focus to the button.
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') {
+      const open = document.querySelector('.nav-group.open');
+      if (open) { const b = open.querySelector('.nav-group-btn'); closeNavGroups(); if (b) b.focus(); }
+    }
+  });
+})();
 
 // ---------- Mobile nav (hamburger) ----------
 function closeMobileNav() {
