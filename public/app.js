@@ -883,8 +883,54 @@ async function loadActiveAds() {
   renderActiveAds();
 }
 
+// ---------- Newsletter subscribe ----------
+function wireSubscribe(formId, emailId, msgId, source) {
+  const form = document.getElementById(formId);
+  if (!form) return;
+  const emailEl = document.getElementById(emailId);
+  const msgEl = document.getElementById(msgId);
+  const btn = form.querySelector('button[type="submit"]');
+  const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  let already = false;
+  try { already = !!localStorage.getItem('pf-subscribed'); } catch (e) {}
+  if (already && msgEl) msgEl.textContent = "You're subscribed 🔥";
+  form.addEventListener('submit', async e => {
+    e.preventDefault();
+    const email = (emailEl.value || '').trim();
+    if (!EMAIL_RE.test(email)) {
+      msgEl.textContent = 'Please enter a valid email address.';
+      msgEl.className = 'subscribe-msg is-err';
+      emailEl.focus();
+      return;
+    }
+    btn.disabled = true;
+    const orig = btn.textContent;
+    btn.textContent = '…';
+    msgEl.textContent = '';
+    msgEl.className = 'subscribe-msg';
+    try {
+      const data = await api('/api/subscribe', { method: 'POST', body: JSON.stringify({ email, source }) });
+      msgEl.textContent = data.note || "You're in! 🔥";
+      msgEl.className = 'subscribe-msg is-ok';
+      form.reset();
+      try { localStorage.setItem('pf-subscribed', '1'); } catch (e) {}
+    } catch (err) {
+      msgEl.textContent = err.message || 'Something went wrong — please try again.';
+      msgEl.className = 'subscribe-msg is-err';
+    } finally {
+      btn.disabled = false;
+      btn.textContent = orig;
+    }
+  });
+}
+function initSubscribe() {
+  wireSubscribe('subscribe-hero-form', 'subscribe-hero-email', 'subscribe-hero-msg', 'hero');
+  wireSubscribe('subscribe-footer-form', 'subscribe-footer-email', 'subscribe-footer-msg', 'footer');
+}
+
 (async function init() {
   loadVisits();
+  initSubscribe();
   await Promise.all([loadLanguages(), loadStats(), loadAds()]);
   loadTrending();
   loadActiveAds();

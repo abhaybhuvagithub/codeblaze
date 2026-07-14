@@ -1,3 +1,4 @@
 node_modules/
 data/ad_inquiries.json
 .env
+data/subscribers.json

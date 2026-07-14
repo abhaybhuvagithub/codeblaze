@@ -131,6 +131,21 @@
       </aside>
     </div>
 
+    <section class="subscribe-band" id="subscribe-band" aria-labelledby="subscribe-heading">
+      <div class="subscribe-inner">
+        <div class="subscribe-copy">
+          <span class="subscribe-badge">🔥 Newsletter</span>
+          <h2 id="subscribe-heading">Get the hottest dev links in your inbox</h2>
+          <p>Curated programming resources, tech news, and learning picks — delivered weekly. No spam, unsubscribe anytime.</p>
+        </div>
+        <form class="subscribe-form" id="subscribe-hero-form" novalidate>
+          <input type="email" name="email" id="subscribe-hero-email" placeholder="you@example.com" autocomplete="email" aria-label="Email address" required>
+          <button type="submit" class="btn btn-primary">Subscribe</button>
+          <p class="subscribe-msg" id="subscribe-hero-msg" role="status" aria-live="polite"></p>
+        </form>
+      </div>
+    </section>
+
     <h2 class="section-title">Trending <span class="slash">/</span> On PulseFeed</h2>
     <div class="grid-3" id="home-trending"></div>
 
@@ -772,6 +787,16 @@
 
 <footer class="footer">
   <div class="container"><div id="ad-zone-footer" class="ad-zone ad-zone-text hidden"></div></div>
+  <div class="container footer-subscribe">
+    <form class="subscribe-form footer-subscribe-form" id="subscribe-footer-form" novalidate>
+      <label for="subscribe-footer-email">📬 Subscribe to the PulseFeed newsletter</label>
+      <div class="footer-subscribe-row">
+        <input type="email" name="email" id="subscribe-footer-email" placeholder="you@example.com" autocomplete="email" aria-label="Email address" required>
+        <button type="submit" class="btn btn-primary">Subscribe</button>
+      </div>
+      <p class="subscribe-msg" id="subscribe-footer-msg" role="status" aria-live="polite"></p>
+    </form>
+  </div>
   <div class="container footer-inner">
     <p>© 2026 PulseFeed 🔥 — Built by developers, for developers. <a href="#advertise" data-nav="advertise">Advertise with us</a></p>
     <p class="footer-visits">👁 <b id="visit-count">–</b> total visitors</p>

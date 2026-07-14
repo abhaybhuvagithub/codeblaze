@@ -112,6 +112,39 @@ ${warns.length ? `<p><strong>A couple of things to tidy up before we go live:</s
   }
 }
 
+// Send a welcome email to a new newsletter subscriber + notify the owner. Never throws.
+async function sendSubscribeEmails(sub) {
+  if (!mailer) return { sent: false, reason: 'not configured' };
+  try {
+    // 1) Owner alert
+    await mailer.sendMail({
+      from: `"PulseFeed" <${MAIL_USER}>`,
+      to: OWNER_EMAIL,
+      subject: `🔔 New PulseFeed subscriber: ${sub.email}`,
+      text: `New newsletter subscriber on PulseFeed:\n\nEmail: ${sub.email}\nSource: ${sub.source || 'site'}\nWhen: ${sub.createdAt}\n\nTotal subscribers: ${subscribers.length}`
+    });
+    // 2) Welcome to the subscriber
+    await mailer.sendMail({
+      from: `"PulseFeed 🔥" <${MAIL_USER}>`,
+      to: sub.email,
+      replyTo: OWNER_EMAIL,
+      subject: `Welcome to PulseFeed 🔥`,
+      text: `Hi there,\n\nThanks for subscribing to PulseFeed — your hub for programming, tech news, and curated learning resources.\n\n` +
+        `You'll get our best links, feeds, and updates straight to your inbox. No spam, unsubscribe anytime.\n\n` +
+        `See what's live: https://codeblaze-eng9.onrender.com/\n\n— The PulseFeed Team`,
+      html: `<p>Hi there,</p>
+<p>Thanks for subscribing to <strong>PulseFeed 🔥</strong> — your hub for programming, tech news, and curated learning resources.</p>
+<p>You'll get our best links, feeds, and updates straight to your inbox. No spam, unsubscribe anytime.</p>
+<p><a href="https://codeblaze-eng9.onrender.com/">See what's live →</a></p>
+<p>— The PulseFeed Team</p>`
+    });
+    return { sent: true };
+  } catch (e) {
+    console.error('✉️  Subscribe email failed:', e.message);
+    return { sent: false, reason: e.message };
+  }
+}
+
 // ---------- tiny JSON file store ----------
 function load(name, fallback) {
   const file = path.join(DATA_DIR, name + '.json');
@@ -174,6 +207,7 @@ let threads = load('threads', [
 ]);
 
 let adInquiries = load('ad_inquiries', []);
+let subscribers = load('subscribers', []);   // newsletter signups
 
 // ---------- Advertise packages ($49–$999, category-wise) ----------
 const AD_PACKAGES = [
@@ -797,6 +831,36 @@ app.post('/api/ads/admin/set-status', (req, res) => {
   if (status === 'active' && !inq.paidVia) inq.paidVia = 'owner';
   save('ad_inquiries', adInquiries);
   res.json({ ok: true, id, status });
+});
+
+// ---------- Newsletter subscribe ----------
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+app.post('/api/subscribe', async (req, res) => {
+  const raw = (req.body && req.body.email) || '';
+  const email = String(raw).trim().toLowerCase().slice(0, 120);
+  const source = req.body && req.body.source ? String(req.body.source).slice(0, 40) : 'site';
+  if (!EMAIL_RE.test(email)) return res.status(400).json({ ok: false, error: 'Please enter a valid email address.' });
+  const existing = subscribers.find(s => s.email === email);
+  if (existing) {
+    return res.json({ ok: true, already: true, note: "You're already on the list — thanks for the love! 🔥" });
+  }
+  const sub = { id: uid(), email, source, createdAt: new Date().toISOString() };
+  subscribers.push(sub);
+  save('subscribers', subscribers);
+  const emailResult = await sendSubscribeEmails(sub);
+  res.status(201).json({
+    ok: true,
+    emailed: emailResult.sent,
+    note: emailResult.sent
+      ? "You're in! A welcome email is on its way. 🔥"
+      : "You're in! Welcome to PulseFeed. 🔥"
+  });
+});
+
+// Owner admin: list subscribers (key-protected).
+app.get('/api/subscribers/admin/list', (req, res) => {
+  if (!adminOk(req)) return res.status(401).json({ error: 'invalid admin key' });
+  res.json({ count: subscribers.length, subscribers });
 });
 
 // Owner admin page (key-protected in the browser via ?key=...).
