@@ -1,7 +1,7 @@
 {
-  "name": "codeblazefeed",
+  "name": "pulsefeed",
   "version": "1.1.0",
-  "description": "CodeBlazeFeed - The hottest programming hub: tutorials, tips & tricks, Q&A, forums, and live tech news.",
+  "description": "PulseFeed - The hottest programming hub: tutorials, tips & tricks, Q&A, forums, and live tech news.",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",

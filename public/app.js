@@ -1,4 +1,4 @@
-// CodeBlaze frontend
+// PulseFeed frontend
 const $ = s => document.querySelector(s);
 const $$ = s => [...document.querySelectorAll(s)];
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -1075,14 +1075,14 @@ async function loadActiveAds() {
 
   // A tour of everything the site now offers.
   function whatsNew() {
-    say(`Here's what CodeBlazeFeed offers:<ul>`
+    say(`Here's what PulseFeed offers:<ul>`
       + `<li><b>Languages</b> — 21 language guides with deep links</li>`
       + `<li><b>Learn</b> — roadmaps, dictionaries, top universities &amp; businesses, and tutorial hubs</li>`
       + `<li><b>Jobs</b> — boards, startups &amp; Indian incubators</li>`
       + `<li><b>Community</b> — Q&amp;A (with Stack Exchange) and Forums</li>`
       + `<li><b>News &amp; Feeds</b> — Tech, Health, Hospitality, Public Transport, Courier, Weather, Ethics &amp; Emergency Services</li></ul>`
       + `<span class="muted">Say “open weather”, “emergency”, or ask about any topic.</span>`,
-      'CodeBlazeFeed covers 21 languages, learning resources, jobs, community, and live feeds for tech, health, hospitality, transport, courier, weather, ethics, and emergency services. Just say open, followed by a section.');
+      'PulseFeed covers 21 languages, learning resources, jobs, community, and live feeds for tech, health, hospitality, transport, courier, weather, ethics, and emergency services. Just say open, followed by a section.');
   }
 
   const search = (q) => run('Searching the feeds…', async () => {
@@ -1099,10 +1099,10 @@ async function loadActiveAds() {
 
   // ---------- FAQ & solutions knowledge base ----------
   const FAQS = [
-    { q: 'What is CodeBlazeFeed?',
-      k: ['what is', 'about', 'codeblaze', 'this site', 'this website', 'purpose', 'who are you site'],
-      a: `CodeBlazeFeed is a programming hub — tips &amp; tricks for <b>21 languages</b>, community Q&amp;A, developer forums, and live <b>Tech</b>, <b>Health</b> &amp; <b>Hospitality</b> news, plus an Advertise desk.`,
-      s: `CodeBlazeFeed is a programming hub with language guides, Q and A, forums, and live news feeds.` },
+    { q: 'What is PulseFeed?',
+      k: ['what is', 'about', 'pulsefeed', 'pulse feed', 'codeblaze', 'this site', 'this website', 'purpose', 'who are you site'],
+      a: `PulseFeed is a programming hub — tips &amp; tricks for <b>21 languages</b>, community Q&amp;A, developer forums, and live <b>Tech</b>, <b>Health</b> &amp; <b>Hospitality</b> news, plus an Advertise desk.`,
+      s: `PulseFeed is a programming hub with language guides, Q and A, forums, and live news feeds.` },
     { q: 'How do I book an advertisement?',
       k: ['advertise', 'advertis', 'book an ad', 'booking', 'campaign', 'sponsor', 'promote', 'run an ad', 'place an ad', 'ad package'],
       a: `Open <b>Advertise</b> in the top menu and chat with <b>Blaze</b>, our booking assistant. Packages run from <b>$49</b> (text link) to <b>$999</b> (full takeover) — tell Blaze your goal and budget and it recommends the best fit, then books it.`,

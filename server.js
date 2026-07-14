@@ -1,4 +1,4 @@
-// CodeBlaze — server.js
+// PulseFeed — server.js
 // Express backend: Q&A, Forums, Live RSS Tech News, Advertise inquiries.
 // Data persists to ./data/*.json (no database required).
 
@@ -79,31 +79,31 @@ async function sendBookingEmails(inquiry, pkg) {
   try {
     // 1) Owner alert
     await mailer.sendMail({
-      from: `"CodeBlazeFeed Ads" <${MAIL_USER}>`,
+      from: `"PulseFeed Ads" <${MAIL_USER}>`,
       to: OWNER_EMAIL,
       replyTo: inquiry.email,
       subject: `🔥 New ad booking: ${pkg.name} — ${inquiry.company}`,
-      text: `New advertising booking on CodeBlazeFeed:\n\n${detail}\n` +
+      text: `New advertising booking on PulseFeed:\n\n${detail}\n` +
         (warns.length ? `\n⚠️ Rule flags:\n- ${warns.join('\n- ')}\n` : '') +
         `\nInquiry ID: ${inquiry.id}\nReceived: ${inquiry.createdAt}`
     });
     // 2) Customer confirmation
     await mailer.sendMail({
-      from: `"CodeBlazeFeed" <${MAIL_USER}>`,
+      from: `"PulseFeed" <${MAIL_USER}>`,
       to: inquiry.email,
       replyTo: OWNER_EMAIL,
-      subject: `Your ${pkg.name} booking with CodeBlazeFeed`,
-      text: `Hi ${inquiry.company},\n\nThanks for booking the ${pkg.name} (${money}) on CodeBlazeFeed! ` +
+      subject: `Your ${pkg.name} booking with PulseFeed`,
+      text: `Hi ${inquiry.company},\n\nThanks for booking the ${pkg.name} (${money}) on PulseFeed! ` +
         `We've received your request and our team will reach out shortly to finalise creative and scheduling.\n\n` +
         `Summary:\n${detail}\n` +
         (warns.length ? `\nA couple of things to tidy up before we go live:\n- ${warns.join('\n- ')}\n` : '') +
-        `\nReply to this email if you have any questions.\n\n— The CodeBlazeFeed Team`,
+        `\nReply to this email if you have any questions.\n\n— The PulseFeed Team`,
       html: `<p>Hi <strong>${inquiry.company}</strong>,</p>
-<p>Thanks for booking the <strong>${pkg.name}</strong> (${money}) on CodeBlazeFeed! We've received your request and our team will reach out shortly to finalise creative and scheduling.</p>
+<p>Thanks for booking the <strong>${pkg.name}</strong> (${money}) on PulseFeed! We've received your request and our team will reach out shortly to finalise creative and scheduling.</p>
 <p><strong>Summary</strong><br>${detail.replace(/\n/g, '<br>')}</p>
 ${warns.length ? `<p><strong>A couple of things to tidy up before we go live:</strong><br>- ${warns.join('<br>- ')}</p>` : ''}
 <p>Reply to this email if you have any questions.</p>
-<p>— The CodeBlazeFeed Team</p>`
+<p>— The PulseFeed Team</p>`
     });
     return { sent: true };
   } catch (e) {
@@ -340,7 +340,7 @@ function validateBooking(pkg, campaign) {
 // Gartner, etc.) don't reject the default feed request.
 const parser = new Parser({
   timeout: 12000,
-  headers: { 'User-Agent': 'Mozilla/5.0 (compatible; CodeBlazeFeedBot/1.0; +https://codeblaze-eng9.onrender.com)' }
+  headers: { 'User-Agent': 'Mozilla/5.0 (compatible; PulseFeedBot/1.0; +https://codeblaze-eng9.onrender.com)' }
 });
 const FEEDS = [
   { name: 'Hacker News', url: 'https://hnrss.org/frontpage' },
@@ -802,7 +802,7 @@ app.post('/api/ads/admin/set-status', (req, res) => {
 // Owner admin page (key-protected in the browser via ?key=...).
 const ADMIN_PAGE = `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>CodeBlazeFeed — Ad Admin</title>
+<title>PulseFeed — Ad Admin</title>
 <style>
   :root{--gold:#b07d10;--ink:#2a1e04;}
   *{box-sizing:border-box}
@@ -1054,4 +1054,4 @@ app.get('/robots.txt', (req, res) => {
 // SPA fallback
 app.get('*', (req, res) => res.sendFile(path.join(__dirname, 'public', 'index.html')));
 
-app.listen(PORT, () => console.log(`🔥 CodeBlazeFeed running at http://localhost:${PORT}`));
+app.listen(PORT, () => console.log(`🔥 PulseFeed running at http://localhost:${PORT}`));
