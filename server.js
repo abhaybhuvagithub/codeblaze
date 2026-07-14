@@ -439,6 +439,18 @@ const ETHICS_FEEDS = [
   { name: 'MIT Tech Review Ethics', url: 'https://www.technologyreview.com/topic/policy/feed' }
 ];
 
+// Emergency services, disaster response & public-safety news (live RSS).
+const EMERGENCY_FEEDS = [
+  { name: 'ReliefWeb', url: 'https://reliefweb.int/updates/rss.xml' },
+  { name: 'GDACS Alerts', url: 'https://www.gdacs.org/xml/rss.xml' },
+  { name: 'EMS1', url: 'https://www.ems1.com/rss/' },
+  { name: 'FireRescue1', url: 'https://www.firerescue1.com/rss/' },
+  { name: 'Fire Engineering', url: 'https://www.fireengineering.com/feed/' },
+  { name: 'JEMS', url: 'https://www.jems.com/feed/' },
+  { name: 'Homeland Security Today', url: 'https://www.hstoday.us/feed/' },
+  { name: 'ReliefWeb Disasters', url: 'https://reliefweb.int/disasters/rss.xml' }
+];
+
 const NEWS_TTL = 10 * 60 * 1000; // 10 minutes
 let newsCache = { items: [], fetchedAt: 0 };
 let healthCache = { items: [], fetchedAt: 0 };
@@ -447,6 +459,7 @@ let transportCache = { items: [], fetchedAt: 0 };
 let courierCache = { items: [], fetchedAt: 0 };
 let weatherCache = { items: [], fetchedAt: 0 };
 let ethicsCache = { items: [], fetchedAt: 0 };
+let emergencyCache = { items: [], fetchedAt: 0 };
 
 // Aggregate any list of feeds into a single, date-sorted item list.
 async function fetchFeeds(feeds) {
@@ -490,6 +503,7 @@ app.get('/api/transport-news', feedEndpoint(TRANSPORT_FEEDS, () => transportCach
 app.get('/api/courier-news', feedEndpoint(COURIER_FEEDS, () => courierCache, c => { courierCache = c; }));
 app.get('/api/weather-news', feedEndpoint(WEATHER_FEEDS, () => weatherCache, c => { weatherCache = c; }));
 app.get('/api/ethics-news', feedEndpoint(ETHICS_FEEDS, () => ethicsCache, c => { ethicsCache = c; }));
+app.get('/api/emergency-news', feedEndpoint(EMERGENCY_FEEDS, () => emergencyCache, c => { emergencyCache = c; }));
 
 // ---------- Q&A ----------
 app.get('/api/questions', (req, res) => {
