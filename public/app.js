@@ -1131,6 +1131,7 @@ function initSubscribe() {
     [/\b(tech news|technology news|headline|news)\b/, 'news', 'Tech News'],
     [/\b(health|medical)\b/, 'health', 'Health'],
     [/\b(hospitality|hotel|travel)\b/, 'hospitality', 'Hospitality'],
+    [/\b(pilgrim|pilgrimage|palace|palaces|temple|shrine|heritage|dham|yatra)\b/, 'pilgrimpalace', 'Pilgrimage & Palaces'],
     [/\b(transport|transit|metro|railway|train|bus|mobility)\b/, 'transport', 'Public Transport'],
     [/\b(courier|parcel|logistics|shipping|delivery)\b/, 'courier', 'Courier Services'],
     [/\b(weather|forecast|climate)\b/, 'weather', 'Weather'],
